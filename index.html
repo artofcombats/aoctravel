@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14584A">
+<meta name="color-scheme" content="light dark">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="曼谷拳旅">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  html{color-scheme:light dark}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<title>曼谷拳旅手冊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+</head>
+<body>
+<style>
+  :root{
+    --ground:#F4F6F4; --panel:#FFFFFF; --panel-2:#EBEFEC;
+    --ink:#141A17; --ink-2:#4A5751; --ink-3:#7C8A83;
+    --line:#D6DDD8; --line-strong:#B4BFB8;
+    --accent:#14584A; --accent-ink:#0E4238; --accent-soft:#DCE9E4;
+    --gold:#9A6B12; --gold-soft:#F2E7CE;
+    --clay:#9E3B2C; --clay-soft:#F3DCD7;
+    --on-accent:#F4F6F4;
+    --bar:#FFFFFFEE;
+    --shadow:0 1px 2px rgba(20,26,23,.06),0 8px 24px -16px rgba(20,26,23,.35);
+    --bar-shadow:0 -1px 0 var(--line), 0 -12px 28px -22px rgba(20,26,23,.6);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#101513; --panel:#171E1B; --panel-2:#1E2724;
+      --ink:#EAF0EC; --ink-2:#A8B5AE; --ink-3:#7B8A83;
+      --line:#2A3532; --line-strong:#3B4844;
+      --accent:#5FC8AC; --accent-ink:#8FE0C9; --accent-soft:#17332C;
+      --gold:#D9B15F; --gold-soft:#33290F;
+      --clay:#E28873; --clay-soft:#3A1F1A;
+      --on-accent:#0C1210;
+      --bar:#171E1BEE;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.9);
+      --bar-shadow:0 -1px 0 var(--line), 0 -12px 28px -20px #000;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#101513; --panel:#171E1B; --panel-2:#1E2724;
+    --ink:#EAF0EC; --ink-2:#A8B5AE; --ink-3:#7B8A83;
+    --line:#2A3532; --line-strong:#3B4844;
+    --accent:#5FC8AC; --accent-ink:#8FE0C9; --accent-soft:#17332C;
+    --gold:#D9B15F; --gold-soft:#33290F;
+    --clay:#E28873; --clay-soft:#3A1F1A;
+    --on-accent:#0C1210;
+    --bar:#171E1BEE;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.9);
+    --bar-shadow:0 -1px 0 var(--line), 0 -12px 28px -20px #000;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:"Noto Sans TC","Hiragino Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:26px 18px 26px}
+  .display{font-family:Anton,"Noto Sans TC",Impact,sans-serif;font-weight:400;letter-spacing:.02em;text-wrap:balance;line-height:1.14}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin:0}
+
+  [hidden]{display:none!important}
+  .page{display:flex;flex-direction:column;gap:34px}
+  .page > section{display:flex;flex-direction:column}
+  section > h2{font-size:19px;margin:0 0 4px;text-transform:uppercase;letter-spacing:.03em}
+  section > .sub{margin:0 0 16px;color:var(--ink-2);font-size:14px;max-width:60ch}
+
+  /* ---------- home ---------- */
+  .hero{padding:8px 0 4px}
+  .hero .rule{height:4px;background:var(--accent);width:56px;border-radius:2px;margin-bottom:15px}
+  .hero h1{font-size:clamp(34px,9vw,56px);margin:0 0 12px;text-transform:uppercase}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{margin:0;color:var(--ink-2);font-size:15px;max-width:46ch}
+
+  .count{
+    margin:22px 0 0;background:var(--accent);color:var(--on-accent);border-radius:14px;
+    padding:20px 22px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  }
+  .count b{font-family:Anton,sans-serif;font-size:46px;line-height:1;letter-spacing:.02em}
+  .count span{font-size:15px;opacity:.85}
+  .count .when{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.06em;opacity:.85}
+
+  .facts{margin-top:14px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
+  .fact{background:var(--panel);padding:13px 15px}
+  .fact dt{margin:0 0 3px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+  .fact dd{margin:0;font-size:14.5px;font-weight:500}
+
+  /* ---------- board ---------- */
+  textarea{
+    font-family:inherit;font-size:15px;color:var(--ink);line-height:1.6;
+    background:var(--panel-2);border:1px solid var(--line-strong);border-radius:8px;
+    padding:10px 11px;width:100%;resize:vertical;min-height:74px;
+  }
+  textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .postform{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px;display:flex;flex-direction:column;gap:11px}
+  .kinds{display:flex;flex-wrap:wrap;gap:6px}
+  .kind{font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line-strong);color:var(--ink-2);user-select:none}
+  .kind[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+  .kind[data-k="尋物"][aria-pressed="true"]{background:var(--clay);border-color:var(--clay)}
+  .kind[data-k="活動"][aria-pressed="true"]{background:var(--gold);border-color:var(--gold)}
+
+  .posts{display:flex;flex-direction:column;gap:10px}
+  .post{
+    background:var(--panel);border:1px solid var(--line);border-left:6px solid var(--line-strong);
+    border-radius:12px;padding:15px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;
+  }
+  .post.k-活動{border-left-color:var(--gold)}
+  .post.k-尋物{border-left-color:var(--clay)}
+  .post.k-公告{border-left-color:var(--accent)}
+
+  .post .main{display:flex;flex-direction:column;gap:7px;min-width:0}
+  .post .tag{
+    align-self:flex-start;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;
+    padding:3px 9px;border-radius:6px;background:var(--panel-2);color:var(--ink-3);font-weight:600;
+  }
+  .post.k-活動 .tag{background:var(--gold-soft);color:var(--gold)}
+  .post.k-尋物 .tag{background:var(--clay-soft);color:var(--clay)}
+  .post.k-公告 .tag{background:var(--accent-soft);color:var(--accent)}
+  .post .hl{
+    margin:0;font-size:clamp(17px,4.6vw,20px);font-weight:700;line-height:1.45;letter-spacing:.01em;
+    white-space:pre-wrap;overflow-wrap:anywhere;text-wrap:pretty;
+  }
+
+  .post .meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right;flex:0 0 auto}
+  .post .meta .del{background:none;border:none;color:var(--ink-3);cursor:pointer;font-size:17px;line-height:1;padding:0 2px 3px;border-radius:6px}
+  .post .meta .del:hover{color:var(--clay);background:var(--clay-soft)}
+  .post .meta .who{font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+  .post .meta .ago{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);white-space:nowrap;letter-spacing:-.01em}
+
+  .apps{display:flex;flex-direction:column;gap:10px}
+  .app{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .app-tx{flex:1 1 190px;display:flex;flex-direction:column;gap:3px;min-width:0}
+  .app-tx b{font-size:17px;letter-spacing:.01em}
+  .app-tx span{font-size:13px;color:var(--ink-3)}
+  .app-links{display:flex;gap:8px;flex:0 0 auto}
+  a.store{
+    font-size:13.5px;font-weight:700;text-decoration:none;white-space:nowrap;
+    padding:9px 15px;border-radius:9px;border:1px solid var(--line-strong);
+    background:var(--panel-2);color:var(--ink-2);
+  }
+  a.store.ios{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  a.store:hover{border-color:var(--accent);color:var(--accent)}
+  a.store.ios:hover{background:var(--accent-ink);color:var(--on-accent)}
+  a.store:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .doors{display:flex;flex-direction:column;gap:10px}
+  .door{
+    display:flex;gap:15px;align-items:center;width:100%;text-align:left;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px 18px;
+    color:inherit;font:inherit;
+  }
+  .door:hover{border-color:var(--accent)}
+  .door:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .door .ic{flex:0 0 auto;width:42px;height:42px;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+  .door .ic svg{width:21px;height:21px}
+  .door .tx{flex:1;display:flex;flex-direction:column;gap:2px}
+  .door .tx b{font-size:16px}
+  .door .tx span{font-size:13px;color:var(--ink-3)}
+  .door .go{color:var(--ink-3);font-size:19px;line-height:1}
+
+  /* ---------- shared blocks ---------- */
+  .block{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px 19px;display:flex;flex-direction:column;gap:12px}
+  .block-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .block-h b{font-size:15px}
+  .block-h span{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);letter-spacing:.06em;text-align:right;white-space:nowrap}
+  .kv{display:grid;grid-template-columns:64px 1fr;gap:6px 14px;font-size:14px;align-items:baseline;margin:0}
+  .kv dt{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+  .kv dd{margin:0}
+  .thai{font-size:15px;line-height:1.95;background:var(--panel-2);border-radius:9px;padding:13px 15px;user-select:all;-webkit-user-select:all}
+  a.maplink{align-self:flex-start;font-size:13px;font-weight:700;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line-strong);padding-bottom:1px}
+  a.maplink:hover{border-bottom-color:var(--accent)}
+  a.maplink:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+  .flight{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px 19px}
+  .flight .leg{display:flex;flex-direction:column;gap:2px}
+  .flight .leg b{font-family:"IBM Plex Mono",monospace;font-size:21px;font-weight:600}
+  .flight .leg span{font-size:12px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;letter-spacing:.08em}
+  .flight .leg.to{text-align:right}
+  .flight .arrow{color:var(--accent);display:grid;place-items:center}
+  .flight .arrow svg{width:20px;height:20px}
+  .flight-h{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin:0 0 6px}
+  .flight-h b{font-size:15px}
+  .flight-h span{font-size:12.5px;color:var(--ink-3)}
+
+  .grid2{display:grid;gap:11px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .room{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+  .room.four{border-left:5px solid var(--accent)}
+  .room ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 14px}
+  .room li{font-size:14.5px}
+
+  button.ghost{
+    background:var(--panel);border:1px dashed var(--line-strong);border-radius:10px;
+    padding:12px 18px;color:var(--ink-2);cursor:pointer;font-size:14.5px;font-weight:700;width:100%;
+  }
+  button.ghost:hover{border-color:var(--accent);color:var(--accent)}
+  button.ghost:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .personform{display:flex;flex-wrap:wrap;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+  .nm.added{border-color:var(--accent);border-style:dashed}
+  .nm .kill{margin-left:auto;background:none;border:none;color:var(--ink-3);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;border-radius:5px}
+  .nm .kill:hover{color:var(--clay)}
+
+  .names{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+  .nm{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:9px 12px;display:flex;gap:9px;align-items:baseline}
+  .nm i{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);min-width:17px}
+  .nm b{font-size:15px;font-weight:700}
+
+  .days{display:flex;flex-direction:column;gap:9px}
+  .day{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 16px;display:grid;grid-template-columns:62px 1fr;gap:4px 14px;align-items:baseline}
+  .day .d{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;color:var(--accent)}
+  .day .t{font-size:14.5px;font-weight:700}
+  .day .n{grid-column:2;font-size:13px;color:var(--ink-3)}
+  .day.travel .d{color:var(--gold)}
+
+  .notes{border-left:3px solid var(--line-strong);padding:2px 0 2px 16px;display:flex;flex-direction:column;gap:7px}
+  .notes p{margin:0;font-size:13.5px;color:var(--ink-2)}
+  .notes b{color:var(--ink)}
+
+  /* ---------- split ---------- */
+  .tiles{display:grid;gap:8px;grid-template-columns:repeat(3,1fr);margin:0 0 15px}
+  .tile{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px 13px;min-width:0}
+  .tile dt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin:0 0 5px}
+  .tile dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:clamp(15px,4.6vw,21px);font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+  form.add{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:13px}
+  .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
+  label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-2)}
+  label.f > span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  input,select,button{font-family:inherit;font-size:15px;color:var(--ink)}
+  input,select{background:var(--panel-2);border:1px solid var(--line-strong);border-radius:8px;padding:9px 11px;width:100%}
+  input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  input[type=number]{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+  .who{display:flex;flex-direction:column;gap:8px}
+  .who-h{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+  .who-h > span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:13.5px;padding:6px 12px;border-radius:999px;cursor:pointer;background:var(--panel-2);border:1px solid var(--line-strong);color:var(--ink-2);user-select:none}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
+  .mini{font-size:12px;padding:5px 10px;border-radius:7px;background:var(--panel-2);border:1px solid var(--line-strong);color:var(--ink-2);cursor:pointer}
+  .mini:hover{border-color:var(--accent);color:var(--accent)}
+  button.primary{background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:12px 22px;font-weight:700;cursor:pointer;align-self:flex-start;letter-spacing:.03em}
+  button.primary:hover{background:var(--accent-ink)}
+  button.primary:disabled{opacity:.45;cursor:not-allowed}
+
+  .exp{display:flex;flex-direction:column;gap:8px;margin-top:15px}
+  .e{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 15px;display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;align-items:center}
+  .e .t{font-weight:700;font-size:14.5px}
+  .e .m{grid-column:1/-1;font-size:12.5px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:3px 12px}
+  .e .amt{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-weight:600;font-size:15px;white-space:nowrap}
+  .e .del{background:none;border:none;color:var(--ink-3);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;border-radius:6px}
+  .e .del:hover{color:var(--clay);background:var(--clay-soft)}
+  .empty{color:var(--ink-3);font-size:14px;text-align:center;padding:24px 12px;border:1px dashed var(--line-strong);border-radius:10px;margin-top:15px}
+
+  .settle{display:flex;flex-direction:column;gap:8px}
+  .s{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:12px 15px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:14.5px}
+  .s .amt{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-weight:600;font-variant-numeric:tabular-nums}
+  .s.ok{border-left-color:var(--accent);color:var(--ink-2)}
+  .bal{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:7px;margin-top:13px}
+  .b{background:var(--panel-2);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;gap:8px;font-size:13.5px;align-items:baseline}
+  .b span{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-weight:600}
+  .b .pos{color:var(--accent)}
+  .b .neg{color:var(--clay)}
+
+  mark.dmk{
+    background:var(--clay);color:var(--on-accent);border-radius:5px;
+    padding:1px 6px;font-weight:700;letter-spacing:.04em;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+  }
+  .alert{
+    background:var(--clay-soft);border:1px solid var(--clay);border-left-width:5px;
+    border-radius:11px;padding:15px 17px;display:flex;flex-direction:column;gap:6px;margin:0 0 16px;
+  }
+  .alert b{color:var(--clay);font-size:15px;letter-spacing:.02em}
+  .alert p{margin:0;font-size:14px;color:var(--ink)}
+  .alert .pair{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .alert .pair span{
+    font-family:"IBM Plex Mono",monospace;font-size:12.5px;padding:6px 11px;border-radius:8px;
+    background:var(--panel);border:1px solid var(--line-strong);color:var(--ink-2);
+  }
+  .alert .pair span.yes{background:var(--clay);border-color:var(--clay);color:var(--on-accent);font-weight:600}
+
+  .banner{border-radius:10px;padding:13px 16px;font-size:13.5px;display:none;margin-bottom:14px}
+  .banner.on{display:block}
+  .banner.warn{background:var(--gold-soft);color:var(--ink)}
+  .banner.warn b{color:var(--gold)}
+
+  footer{border-top:1px solid var(--line);padding-top:15px;font-size:12px;color:var(--ink-3)}
+
+  /* ---------- bottom bar ---------- */
+  .tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:var(--bar);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    box-shadow:var(--bar-shadow);
+    padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px));
+  }
+  .tabbar .inner{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .tab{
+    display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;
+    background:transparent;border:1px solid transparent;border-radius:999px;padding:8px 4px;
+    color:var(--ink-3);font:inherit;font-size:11.5px;font-weight:700;letter-spacing:.02em;
+  }
+  .tab svg{width:21px;height:21px;display:block}
+  .tab:hover{color:var(--ink-2)}
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  @media (max-width:360px){ .tab{font-size:10.5px} }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+  <!-- ============ HOME ============ -->
+  <div class="page" id="p-home">
+    <div class="hero">
+      <div class="rule"></div>
+      <p class="eyebrow">AOC 格鬥藝術 · Bangkok</p>
+      <h1 class="display">曼谷拳旅<em>手冊</em></h1>
+      <p><span id="heroCount">14</span> 人、六天五夜、高雄小港出發。住宿、機票、地址、分帳都在這裡，出發前先存起來。</p>
+
+      <div class="count">
+        <b id="cdNum">–</b>
+        <span id="cdTxt">天後出發</span>
+        <span class="when">12 / 01 → 12 / 06</span>
+      </div>
+
+      <dl class="facts">
+        <div class="fact"><dt>People</dt><dd class="mono" id="headCount">14 人</dd></div>
+        <div class="fact"><dt>Route</dt><dd class="mono">KHH → <mark class="dmk">DMK</mark></dd></div>
+        <div class="fact"><dt>Stay</dt><dd>SONGPEEP house</dd></div>
+        <div class="fact"><dt>Train</dt><dd class="mono">12/2 – 12/5</dd></div>
+      </dl>
+    </div>
+
+    <section>
+      <h2 class="display">公告板</h2>
+      <p class="sub">臨時想揪活動、東西掉了、有事要提醒大家——貼在這裡，14 個人都看得到。</p>
+
+      <button type="button" class="ghost" id="postOpen">＋ 發布公告</button>
+      <form class="postform" id="postForm" hidden>
+        <div class="kinds" id="postKinds">
+          <button type="button" class="kind" data-k="公告" aria-pressed="true">一般公告</button>
+          <button type="button" class="kind" data-k="活動" aria-pressed="false">揪活動</button>
+          <button type="button" class="kind" data-k="尋物" aria-pressed="false">尋物協尋</button>
+        </div>
+        <label class="f"><span>你是誰</span><select id="postWho"></select></label>
+        <label class="f"><span>想說什麼</span><textarea id="postText" maxlength="400" placeholder="例：明天晚上有人要一起去看拳賽嗎？&#10;例：我的紅色水壺不見了，有人看到嗎？"></textarea></label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button type="submit" class="primary" id="postSend">發布</button>
+          <button type="button" class="mini" id="postCancel" style="padding:11px 15px">取消</button>
+        </div>
+      </form>
+
+      <div class="posts" id="postList" style="margin-top:13px"></div>
+      <div class="empty" id="postEmpty" style="margin-top:13px">還沒有人發布。有事想講就按上面那顆按鈕。</div>
+    </section>
+
+    <section>
+      <h2 class="display">要看什麼</h2>
+      <p class="sub">下面三個入口，跟螢幕底部的三顆按鈕是同一件事。</p>
+      <div class="doors">
+        <button class="door" data-go="stay">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.2 2.9 10.4a.5.5 0 0 0 .04.94l7.3 2.16 2.16 7.3a.5.5 0 0 0 .94.04L21.5 3.2z"/><path d="M21.5 3.2 10.24 13.5"/></svg></span>
+          <span class="tx"><b>住宿與機票</b><span>住宿地址、班機時間、行李提醒</span></span>
+          <span class="go" aria-hidden="true">›</span>
+        </button>
+        <button class="door" data-go="trip">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2s7-6.3 7-11.2a7 7 0 1 0-14 0c0 4.9 7 11.2 7 11.2z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
+          <span class="tx"><b>行程與地址簿</b><span>叫車 App、泰文地址、同行名單</span></span>
+          <span class="go" aria-hidden="true">›</span>
+        </button>
+        <button class="door" data-go="cost">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.8v18.4"/><path d="M16.4 7.1C16.4 5.3 14.5 4.2 12 4.2S7.6 5.3 7.6 7.4s1.9 2.8 4.4 3.4 4.6 1.3 4.6 3.5-2 3.5-4.6 3.5-4.6-1.3-4.6-3.3"/></svg></span>
+          <span class="tx"><b>費用分帳</b><span>誰先墊了什麼，最後誰付誰</span></span>
+          <span class="go" aria-hidden="true">›</span>
+        </button>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="display">出發前三件事</h2>
+      <div class="notes">
+        <p><b>機場是 <mark class="dmk">DMK 廊曼</mark>，不是 BKK 素萬那普。</b>曼谷有兩個機場，自己訂票的人千萬別買錯，回程也一樣。<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
+        <p><b>回程 12/6 是清晨 05:40 的飛機。</b>全團 03:30 就要離開房子。12/5 晚上請提早收行李、早點睡。</p>
+        <p><b>行李額度要自己加購。</b>廉航托運另外算，拳套護具很佔重量，訂票時一起處理。</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ STAY + FLY ============ -->
+  <div class="page" id="p-stay" hidden>
+    <section>
+      <h2 class="display">住宿 · SONGPEEP HOUSE</h2>
+      <p class="sub">Chatuchak 區三層透天，6 房 12 床 7 衛。已訂妥。</p>
+      <dl class="facts" style="margin-top:0">
+        <div class="fact"><dt>Check-in</dt><dd class="mono">12/1 · 15:00 後</dd></div>
+        <div class="fact"><dt>Check-out</dt><dd class="mono">12/6 · 清晨</dd></div>
+        <div class="fact"><dt>Nights</dt><dd class="mono">5 晚</dd></div>
+        <div class="fact"><dt>Rooms</dt><dd class="mono">6 房 / 7 衛</dd></div>
+      </dl>
+      <div class="block" style="margin-top:12px">
+        <dl class="kv">
+          <dt>地址</dt><dd>677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900</dd>
+          <dt>地圖</dt><dd>Google 地圖上顯示的名字是 <b>Bai bua house</b>，不是 SONGPEEP house。開進 Soi Ladprao 5/1 到巷底，右手邊的綠色房子。</dd>
+        </dl>
+        <div class="thai">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div>
+        <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Bai+bua+house+Soi+Ladprao+5%2F1+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="display">機票</h2>
+      <p class="sub">泰國獅航直飛。<b>尚未開票</b>——時刻與票價為查詢時的參考資料。</p>
+      <div class="alert">
+        <b>訂票前先看這個：機場是廊曼，不是素萬那普</b>
+        <p>曼谷有兩個機場。我們這班降落的是 <mark class="dmk">DMK 廊曼機場</mark>，離住處只要 20 分鐘。<b>不要買到 BKK 素萬那普</b>——那是另一個機場，在城市另一邊，到住處要多 30 分鐘以上，而且回程也接不上。</p>
+        <div class="pair">
+          <span class="yes">✓ DMK · Don Mueang · 廊曼</span>
+          <span>✕ BKK · Suvarnabhumi · 素萬那普</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div>
+          <p class="flight-h"><b>去程 · 12/1（二）</b><span>泰國獅航 SL · 直飛 3 小時 25 分</span></p>
+          <div class="flight">
+            <div class="leg"><b>16:40</b><span>KHH 高雄小港</span></div>
+            <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.2 2.9 10.4a.5.5 0 0 0 .04.94l7.3 2.16 2.16 7.3a.5.5 0 0 0 .94.04L21.5 3.2z"/></svg></div>
+            <div class="leg to"><b>19:05</b><span><mark class="dmk">DMK</mark> 廊曼</span></div>
+          </div>
+        </div>
+        <div>
+          <p class="flight-h"><b>回程 · 12/6（日）</b><span>泰國獅航 SL · 直飛 3 小時 30 分</span></p>
+          <div class="flight">
+            <div class="leg"><b>05:40</b><span><mark class="dmk">DMK</mark> 廊曼</span></div>
+            <div class="arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.2 2.9 10.4a.5.5 0 0 0 .04.94l7.3 2.16 2.16 7.3a.5.5 0 0 0 .94.04L21.5 3.2z"/></svg></div>
+            <div class="leg to"><b>10:10</b><span>KHH 高雄小港</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="notes" style="margin-top:15px">
+        <p><b>落地 19:05，住處 15:00 就能入住。</b>不用付提前入住費，直接從廊曼搭車過去約 20 分鐘。</p>
+        <p><b>回程要凌晨 3:30 出發。</b>12/5 晚上別安排夜生活。</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ TRIP ============ -->
+  <div class="page" id="p-trip" hidden>
+    <section>
+      <h2 class="display">出發前先裝好叫車 App</h2>
+      <p class="sub">曼谷不建議路邊攔車。這兩個 app 在台灣就要先裝好、註冊好、綁好信用卡——落地才裝會很慌。</p>
+      <div class="apps">
+        <div class="app">
+          <div class="app-tx">
+            <b>Grab</b>
+            <span>東南亞最通用，車最多，也能叫外送。首選。</span>
+          </div>
+          <div class="app-links">
+            <a class="store ios" href="https://apps.apple.com/tw/app/id647268330" target="_blank" rel="noopener">iPhone 下載</a>
+            <a class="store" href="https://play.google.com/store/apps/details?id=com.grabtaxi.passenger" target="_blank" rel="noopener">Android</a>
+          </div>
+        </div>
+        <div class="app">
+          <div class="app-tx">
+            <b>Bolt</b>
+            <span>通常比 Grab 便宜一點，尖峰時段 Grab 叫不到車就用它。</span>
+          </div>
+          <div class="app-links">
+            <a class="store ios" href="https://apps.apple.com/tw/app/id675033630" target="_blank" rel="noopener">iPhone 下載</a>
+            <a class="store" href="https://play.google.com/store/apps/details?id=ee.mtakso.client" target="_blank" rel="noopener">Android</a>
+          </div>
+        </div>
+      </div>
+      <div class="notes" style="margin-top:14px">
+        <p><b>兩個都裝。</b>同一段路兩邊比價，差價常常有三四十泰銖；而且下班時間一家叫不到車是常態。</p>
+        <p><b>先在台灣註冊、綁卡。</b>註冊要收簡訊驗證碼，到了泰國換卡或漫遊都可能收不到。綁好卡也不用跟司機找零。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="display">地址簿 · 給司機看</h2>
+      <p class="sub">泰文地址長按可整段複製，或直接把螢幕轉給司機看。三個地點都在 Chatuchak／Phaya Thai 一帶。</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="block">
+          <div class="block-h"><b>F.A. Group Muay Thai</b><span>離住處 ~1 KM</span></div>
+          <dl class="kv">
+            <dt>地址</dt><dd>270 / 166 Vibhavadi Rangsit Rd, Chom Phon, Chatuchak, Bangkok 10900</dd>
+            <dt>交通</dt><dd>走路約 15 分鐘 · Grab 約 5 分鐘</dd>
+          </dl>
+          <div class="thai">เลขที่ 270/166 ถนนวิภาวดีรังสิต<br>แขวงจอมพล เขตจตุจักร<br>กรุงเทพฯ 10900</div>
+          <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=F.A.+Group+Muay+Thai+Vibhavadi+Rangsit+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
+        </div>
+
+        <div class="block">
+          <div class="block-h"><b>Tded99 Muaythai Gym</b><span>離住處 ~3 KM</span></div>
+          <dl class="kv">
+            <dt>地址</dt><dd>13-15 Soi Inthamara 9, Sutthisan Winitchai Rd, Phaya Thai, Bangkok 10400</dd>
+            <dt>時間</dt><dd>週一～週六 07:00–20:00，<b>週日休</b> · 團體課 15:00–19:00</dd>
+          </dl>
+          <div class="thai">เลขที่ 13-15 ซอยอินทามระ 9<br>ถนนสุทธิสารวินิจฉัย เขตพญาไท<br>กรุงเทพฯ 10400</div>
+          <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Tded99+Muay+Thai+Gym+Inthamara+9+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
+        </div>
+
+        <div class="block">
+          <div class="block-h"><b>回家 · SONGPEEP house</b><span>住處</span></div>
+          <dl class="kv">
+            <dt>地址</dt><dd>677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900<br><span style="color:var(--ink-3);font-size:13px">地圖上叫 <b>Bai bua house</b>，巷底右手邊綠色房子</span></dd>
+          </dl>
+          <div class="thai">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div>
+          <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Bai+bua+house+Soi+Ladprao+5%2F1+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
+        </div>
+      </div>
+
+      <div class="notes" style="margin-top:15px">
+        <p><b>叫車順序：先用地圖定位，泰文地址當備案。</b>Grab 直接搜店名最準；攔街邊計程車就把泰文那幾行給司機看。</p>
+        <p><b>泰文是照英文地址轉寫的。</b>出發前建議跟拳館再核對一次，尤其 F.A. Group 的門牌網路上有 270 和 166 兩種寫法。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="display">同行名單 · <span id="rosterCount">14</span> 人</h2>
+      <p class="sub">名字有誤請告知，機票開票後就不能改。<span id="rosterHint">有人要加入或退出，請直接告訴 Brooklyn，由她更新名單。</span></p>
+      <div class="names" id="nameList"></div>
+
+      <div id="addPersonWrap" style="margin-top:12px" hidden>
+        <button type="button" class="ghost" id="addPersonBtn">＋ 增加人員</button>
+        <form id="addPersonForm" class="personform" hidden>
+          <label class="f" style="flex:1;min-width:160px"><span>姓名</span><input id="pName" type="text" maxlength="20" placeholder="輸入中文姓名" autocomplete="off"></label>
+          <div style="display:flex;gap:8px;align-items:flex-end;padding-bottom:1px">
+            <button type="submit" class="primary" style="padding:9px 18px">新增</button>
+            <button type="button" class="mini" id="pCancel" style="padding:10px 14px">取消</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ COST ============ -->
+  <div class="page" id="p-cost" hidden>
+    <section>
+      <h2 class="display">分帳</h2>
+      <p class="sub">誰先墊了什麼就記一筆，最後系統算出誰要付誰多少。<b>大家共用同一份紀錄</b>，你新增的別人也看得到。</p>
+
+      <div class="banner warn" id="offline"><b>離線模式：</b>這個裝置沒能連上共用紀錄，你的輸入只留在這個瀏覽器、不會同步給其他人。換個網路或重新整理再試。</div>
+
+      <dl class="tiles">
+        <div class="tile"><dt>總支出</dt><dd id="tTotal">NT$0</dd></div>
+        <div class="tile"><dt>筆數</dt><dd id="tCount">0</dd></div>
+        <div class="tile"><dt>人均</dt><dd id="tAvg">NT$0</dd></div>
+      </dl>
+
+      <form class="add" id="addForm">
+        <div class="row">
+          <label class="f"><span>項目</span><input id="fTitle" type="text" placeholder="例：Grab、宵夜、課費" required maxlength="40"></label>
+          <label class="f"><span>金額</span><input id="fAmount" type="number" min="0" step="1" placeholder="0" required></label>
+          <label class="f"><span>幣別</span>
+            <select id="fCur"><option value="TWD">TWD 台幣</option><option value="THB">THB 泰銖</option></select>
+          </label>
+          <label class="f"><span>誰先付的</span><select id="fPayer"></select></label>
+        </div>
+        <div class="who">
+          <div class="who-h">
+            <span>這筆由誰分攤</span>
+            <span style="display:flex;gap:6px">
+              <button type="button" class="mini" id="selAll">全選</button>
+              <button type="button" class="mini" id="selNone">全不選</button>
+            </span>
+          </div>
+          <div class="chips" id="fWho"></div>
+        </div>
+        <button type="submit" class="primary" id="submitBtn">記一筆</button>
+      </form>
+
+      <div class="exp" id="expList"></div>
+      <div class="empty" id="expEmpty">還沒有任何紀錄。</div>
+    </section>
+
+    <section>
+      <h2 class="display">結算 · 誰付給誰</h2>
+      <div class="settle" id="settleList"></div>
+      <div class="bal" id="balList"></div>
+      <div class="notes" style="margin-top:18px">
+        <p><b>泰銖匯率：</b><input id="fRate" type="number" step="0.01" min="0.1" style="width:86px;display:inline-block;padding:4px 8px;font-size:13.5px"> TWD ／ 1 THB。改了大家都會跟著變，出發前對一次就好。</p>
+        <p><b>刪錯了沒有復原。</b>刪除是永久的，刪之前看清楚。</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>住宿為 Airbnb 已完成訂房；機票時刻與票價為查詢時的參考資料，尚未開票。拳館營業時間與課表請於出發前再確認一次。</p>
+    </footer>
+  </div>
+
+</div>
+
+<nav class="tabbar" aria-label="主要分頁">
+  <div class="inner" role="tablist">
+    <button class="tab" role="tab" id="t-home" data-go="home" aria-selected="true" aria-controls="p-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 10.6 12 3.4l8.8 7.2"/><path d="M5.6 9.4V20h12.8V9.4"/></svg>
+      首頁
+    </button>
+    <button class="tab" role="tab" id="t-stay" data-go="stay" aria-selected="false" aria-controls="p-stay">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 3.2 2.9 10.4a.5.5 0 0 0 .04.94l7.3 2.16 2.16 7.3a.5.5 0 0 0 .94.04L21.5 3.2z"/><path d="M21.5 3.2 10.24 13.5"/></svg>
+      住宿機票
+    </button>
+    <button class="tab" role="tab" id="t-trip" data-go="trip" aria-selected="false" aria-controls="p-trip">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.2s7-6.3 7-11.2a7 7 0 1 0-14 0c0 4.9 7 11.2 7 11.2z"/><circle cx="12" cy="10" r="2.6"/></svg>
+      行程
+    </button>
+    <button class="tab" role="tab" id="t-cost" data-go="cost" aria-selected="false" aria-controls="p-cost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8v18.4"/><path d="M16.4 7.1C16.4 5.3 14.5 4.2 12 4.2S7.6 5.3 7.6 7.4s1.9 2.8 4.4 3.4 4.6 1.3 4.6 3.5-2 3.5-4.6 3.5-4.6-1.3-4.6-3.3"/></svg>
+      費用
+    </button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+  var BASE = ["張佳欣","蔡佳叡","曾俊皓","張勝雄","蔡蕙蘭","高睿澤","潘宇喬","林御涵","魏均儀","薛嘉沂","謝佳霖","林欣儒","杜孟軒","吳宜珉"];
+  var extras = [];  // [{id,name}] from db
+  var MEMBERS = BASE.slice();
+  function rebuildMembers(){
+    MEMBERS = BASE.concat(extras.map(function(x){ return x.name; }));
+  }
+  var DEFAULT_RATE = 0.95;
+  var PAGES = ["home","stay","trip","cost"];
+
+  /* ---------- admin (roster editing is owner-only) ---------- */
+  var ADMIN_TOKEN = "bk26-6g85dOwg";
+  var isAdmin = false;
+  (function(){
+    var m = /(?:^#|[#&])admin=([^&]+)/.exec(location.hash || "");
+    if (m && decodeURIComponent(m[1]) === ADMIN_TOKEN){
+      try { localStorage.setItem("bkkAdmin", ADMIN_TOKEN); } catch(e){}
+      history.replaceState(null, "", location.pathname + location.search + "#trip");
+    }
+    try { isAdmin = localStorage.getItem("bkkAdmin") === ADMIN_TOKEN; } catch(e){ isAdmin = false; }
+    if (isAdmin){
+      document.getElementById("addPersonWrap").hidden = false;
+      document.getElementById("rosterHint").textContent = "你是管理者：可以用下面的按鈕新增或移除人員，其他人看不到這個按鈕。";
+    }
+  })();
+
+  var db = null, expenses = [], posts = [], rate = DEFAULT_RATE, selected = MEMBERS.slice();
+  var postKind = "公告";
+  var $ = function(id){ return document.getElementById(id); };
+  var fmt = function(n){ return "NT$" + Math.round(n).toLocaleString("en-US"); };
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  /* ---------- routing ---------- */
+  function show(name){
+    if (PAGES.indexOf(name) < 0) name = "home";
+    for (var i=0;i<PAGES.length;i++){
+      var p = PAGES[i];
+      $("p-" + p).hidden = (p !== name);
+      $("t-" + p).setAttribute("aria-selected", p === name ? "true" : "false");
+    }
+    if (window.scrollTo) window.scrollTo(0,0);
+  }
+  function go(name){
+    if (location.hash !== "#" + name) location.hash = name;
+    else show(name);
+  }
+  document.addEventListener("click", function(ev){
+    var el = ev.target.closest("[data-go]");
+    if (!el) return;
+    go(el.getAttribute("data-go"));
+  });
+  window.addEventListener("hashchange", function(){ show((location.hash || "").replace("#","")); });
+  show((location.hash || "").replace("#",""));
+
+  /* ---------- countdown ---------- */
+  (function(){
+    var dep = new Date(2026,11,1);
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var days = Math.round((dep - today) / 86400000);
+    if (days > 0){ $("cdNum").textContent = days; $("cdTxt").textContent = "天後出發"; }
+    else if (days === 0){ $("cdNum").textContent = "今天"; $("cdTxt").textContent = "出發！"; }
+    else if (days > -6){ $("cdNum").textContent = "第 " + (1-days) + " 天"; $("cdTxt").textContent = "行程進行中"; }
+    else { $("cdNum").textContent = "已結束"; $("cdTxt").textContent = "辛苦了"; }
+  })();
+
+  /* ---------- roster ---------- */
+  function renderRoster(){
+    rebuildMembers();
+    var html = "", i;
+    for (i=0;i<BASE.length;i++){
+      var n = (i+1) < 10 ? "0"+(i+1) : ""+(i+1);
+      html += '<div class="nm"><i>'+n+'</i><b>'+esc(BASE[i])+'</b></div>';
+    }
+    for (i=0;i<extras.length;i++){
+      var idx = BASE.length + i + 1;
+      var nn = idx < 10 ? "0"+idx : ""+idx;
+      html += '<div class="nm added"><i>'+nn+'</i><b>'+esc(extras[i].name)+'</b>'
+            + (isAdmin ? '<button class="kill" data-pid="'+esc(extras[i].id)+'" aria-label="移除 '+esc(extras[i].name)+'">×</button>' : '')
+            + '</div>';
+    }
+    $("nameList").innerHTML = html;
+    $("rosterCount").textContent = String(MEMBERS.length);
+    $("headCount").textContent = MEMBERS.length + " 人";
+    $("heroCount").textContent = String(MEMBERS.length);
+
+    // payer select: keep current choice if it still exists
+    var prev = $("fPayer").value;
+    var opt = "";
+    for (i=0;i<MEMBERS.length;i++) opt += '<option value="'+esc(MEMBERS[i])+'">'+esc(MEMBERS[i])+'</option>';
+    $("fPayer").innerHTML = opt;
+    if (MEMBERS.indexOf(prev) >= 0) $("fPayer").value = prev;
+
+    var prevW = $("postWho").value;
+    $("postWho").innerHTML = opt;
+    if (MEMBERS.indexOf(prevW) >= 0) $("postWho").value = prevW;
+
+    // participant chips: keep current selection, new people default on
+    var was = {}, j;
+    var chipsNow = $("fWho").querySelectorAll(".chip");
+    var hadAny = chipsNow.length > 0;
+    for (j=0;j<chipsNow.length;j++) was[chipsNow[j].getAttribute("data-n")] = chipsNow[j].getAttribute("aria-pressed") === "true";
+    var chips = "";
+    for (i=0;i<MEMBERS.length;i++){
+      var on = hadAny ? (was[MEMBERS[i]] !== false) : true;
+      chips += '<button type="button" class="chip" aria-pressed="'+(on ? "true" : "false")+'" data-n="'+esc(MEMBERS[i])+'">'+esc(MEMBERS[i])+'</button>';
+    }
+    $("fWho").innerHTML = chips;
+    syncSelected();
+    render();
+  }
+
+  $("addPersonBtn").addEventListener("click", function(){
+    $("addPersonBtn").hidden = true;
+    $("addPersonForm").hidden = false;
+    $("pName").focus();
+  });
+  $("pCancel").addEventListener("click", function(){
+    $("addPersonForm").hidden = true;
+    $("addPersonBtn").hidden = false;
+    $("pName").value = "";
+  });
+  $("addPersonForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var name = $("pName").value.trim();
+    if (!name || !isAdmin) return;
+    if (MEMBERS.indexOf(name) >= 0){ alert("「" + name + "」已經在名單裡了。"); return; }
+    if (db){
+      db.collection("members").add({ name: name, createdAt: Date.now(), token: ADMIN_TOKEN })
+        .catch(function(){ alert("新增沒有成功，請再試一次。"); });
+    } else {
+      extras.push({ id: "local-" + Date.now(), name: name });
+      renderRoster();
+    }
+    $("pName").value = "";
+    $("addPersonForm").hidden = true;
+    $("addPersonBtn").hidden = false;
+  });
+  $("nameList").addEventListener("click", function(ev){
+    var btn = ev.target.closest(".kill"); if (!btn || !isAdmin) return;
+    var pid = btn.getAttribute("data-pid"), who = null, i;
+    for (i=0;i<extras.length;i++) if (extras[i].id === pid) who = extras[i];
+    if (!who) return;
+    if (!confirm("把「" + who.name + "」從名單移除？已經記過的帳不會跟著刪掉。")) return;
+    if (db){
+      db.doc("members/" + pid).delete().catch(function(){ alert("移除沒有成功，請再試一次。"); });
+    } else {
+      extras = extras.filter(function(x){ return x.id !== pid; });
+      renderRoster();
+    }
+  });
+
+  $("fWho").addEventListener("click", function(e){
+    var b = e.target.closest(".chip"); if (!b) return;
+    b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    syncSelected();
+  });
+  function syncSelected(){
+    selected = [];
+    var chips = $("fWho").querySelectorAll(".chip");
+    for (var i=0;i<chips.length;i++){
+      if (chips[i].getAttribute("aria-pressed") === "true") selected.push(chips[i].getAttribute("data-n"));
+    }
+    $("submitBtn").disabled = selected.length === 0;
+  }
+  function setAllChips(on){
+    var chips = $("fWho").querySelectorAll(".chip");
+    for (var i=0;i<chips.length;i++) chips[i].setAttribute("aria-pressed", on ? "true" : "false");
+    syncSelected();
+  }
+  $("selAll").addEventListener("click", function(){ setAllChips(true); });
+  $("selNone").addEventListener("click", function(){ setAllChips(false); });
+
+  /* ---------- board ---------- */
+  function stamp(ts){
+    if (!ts) return "";
+    var d = new Date(ts);
+    var hh = d.getHours();
+    var ap = hh < 12 ? "AM" : "PM";
+    var h12 = hh % 12; if (h12 === 0) h12 = 12;
+    return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate()
+      + " " + h12 + ":" + ("0" + d.getMinutes()).slice(-2) + ap;
+  }
+  var KIND_LABEL = { "公告":"公告", "活動":"揪活動", "尋物":"尋物" };
+
+  function renderPosts(){
+    var html = "";
+    var sorted = posts.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+    for (var i=0;i<sorted.length;i++){
+      var q = sorted[i];
+      var k = KIND_LABEL[q.kind] ? q.kind : "公告";
+      html += '<div class="post k-' + k + '">'
+        + '<div class="main">'
+        +   '<span class="tag">' + esc(KIND_LABEL[k]) + '</span>'
+        +   '<h3 class="hl">' + esc(q.text) + '</h3>'
+        + '</div>'
+        + '<div class="meta">'
+        +   '<button class="del" data-qid="' + esc(q.id) + '" aria-label="刪除這則">×</button>'
+        +   '<span class="who">' + esc(q.author) + '</span>'
+        +   '<span class="ago">' + esc(stamp(q.createdAt)) + '</span>'
+        + '</div>'
+        + '</div>';
+    }
+    $("postList").innerHTML = html;
+    $("postEmpty").hidden = posts.length > 0;
+  }
+
+  $("postKinds").addEventListener("click", function(ev){
+    var b = ev.target.closest(".kind"); if (!b) return;
+    var all = $("postKinds").querySelectorAll(".kind");
+    for (var i=0;i<all.length;i++) all[i].setAttribute("aria-pressed", all[i] === b ? "true" : "false");
+    postKind = b.getAttribute("data-k");
+  });
+  $("postOpen").addEventListener("click", function(){
+    $("postOpen").hidden = true; $("postForm").hidden = false; $("postText").focus();
+  });
+  $("postCancel").addEventListener("click", function(){
+    $("postForm").hidden = true; $("postOpen").hidden = false; $("postText").value = "";
+  });
+  $("postForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var text = $("postText").value.trim();
+    if (!text) return;
+    var rec = { author: $("postWho").value, text: text, kind: postKind, createdAt: Date.now() };
+    if (db){
+      db.collection("posts").add(rec).catch(function(){ alert("發布沒有成功，請再試一次。"); });
+    } else {
+      rec.id = "local-" + Date.now(); posts.push(rec); renderPosts();
+    }
+    $("postText").value = "";
+    $("postForm").hidden = true; $("postOpen").hidden = false;
+  });
+  $("postList").addEventListener("click", function(ev){
+    var btn = ev.target.closest(".del"); if (!btn) return;
+    var id = btn.getAttribute("data-qid"), q = null;
+    for (var i=0;i<posts.length;i++) if (posts[i].id === id) q = posts[i];
+    if (!q) return;
+    if (!confirm("刪除「" + q.author + "」發的這則公告？")) return;
+    if (db){
+      db.doc("posts/" + id).delete().catch(function(){ alert("刪除沒有成功，請再試一次。"); });
+    } else {
+      posts = posts.filter(function(x){ return x.id !== id; }); renderPosts();
+    }
+  });
+
+  /* ---------- math ---------- */
+  function twd(e){ return e.currency === "THB" ? e.amount * rate : e.amount; }
+  function balances(){
+    var b = {}, i, j, k;
+    for (i=0;i<MEMBERS.length;i++) b[MEMBERS[i]] = 0;
+    for (j=0;j<expenses.length;j++){
+      var e = expenses[j];
+      var people = (e.participants && e.participants.length) ? e.participants : MEMBERS;
+      var amt = twd(e);
+      if (b[e.payer] === undefined) b[e.payer] = 0;
+      b[e.payer] += amt;
+      var share = amt / people.length;
+      for (k=0;k<people.length;k++){
+        if (b[people[k]] === undefined) b[people[k]] = 0;
+        b[people[k]] -= share;
+      }
+    }
+    return b;
+  }
+  function settle(b){
+    var owe = [], get = [], name;
+    for (name in b){
+      var v = Math.round(b[name]);
+      if (v < -0.5) owe.push({n:name, v:-v});
+      else if (v > 0.5) get.push({n:name, v:v});
+    }
+    owe.sort(function(x,y){ return y.v - x.v; });
+    get.sort(function(x,y){ return y.v - x.v; });
+    var out = [], i = 0, j = 0;
+    while (i < owe.length && j < get.length){
+      var amt = Math.min(owe[i].v, get[j].v);
+      if (amt > 0) out.push({from:owe[i].n, to:get[j].n, amt:amt});
+      owe[i].v -= amt; get[j].v -= amt;
+      if (owe[i].v <= 0.5) i++;
+      if (get[j].v <= 0.5) j++;
+    }
+    return out;
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var total = 0, i;
+    for (i=0;i<expenses.length;i++) total += twd(expenses[i]);
+    $("tTotal").textContent = fmt(total);
+    $("tCount").textContent = String(expenses.length);
+    $("tAvg").textContent = fmt(total / MEMBERS.length);
+
+    var html = "";
+    var sorted = expenses.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
+    for (var j=0;j<sorted.length;j++){
+      var e = sorted[j];
+      var people = (e.participants && e.participants.length) ? e.participants : MEMBERS;
+      var whoTxt = people.length === MEMBERS.length ? "全員 " + MEMBERS.length + " 人分攤" : people.length + " 人分攤：" + people.join("、");
+      var orig = e.currency === "THB" ? "（฿" + Math.round(e.amount).toLocaleString("en-US") + "）" : "";
+      html += '<div class="e">'
+        + '<div class="t">' + esc(e.title) + '</div>'
+        + '<div class="amt">' + fmt(twd(e)) + esc(orig) + '</div>'
+        + '<button class="del" data-id="' + esc(e.id) + '" aria-label="刪除這筆">×</button>'
+        + '<div class="m"><span>' + esc(e.payer) + ' 先付</span><span>' + esc(whoTxt) + '</span><span>每人 ' + fmt(twd(e)/people.length) + '</span></div>'
+        + '</div>';
+    }
+    $("expList").innerHTML = html;
+    $("expEmpty").hidden = expenses.length > 0;
+
+    var b = balances(), moves = settle(b), sHtml = "";
+    if (!expenses.length) sHtml = '<div class="s ok">記了帳之後，這裡會算出誰要付誰多少。</div>';
+    else if (!moves.length) sHtml = '<div class="s ok">目前打平，沒有人要付給誰。</div>';
+    else for (var m=0;m<moves.length;m++){
+      sHtml += '<div class="s"><b>' + esc(moves[m].from) + '</b> 付給 <b>' + esc(moves[m].to) + '</b><span class="amt">' + fmt(moves[m].amt) + '</span></div>';
+    }
+    $("settleList").innerHTML = sHtml;
+
+    var bHtml = "";
+    if (expenses.length){
+      for (var k=0;k<MEMBERS.length;k++){
+        var nm = MEMBERS[k], v = Math.round(b[nm] || 0);
+        var cls = v > 0 ? "pos" : (v < 0 ? "neg" : "");
+        var txt = v > 0 ? "+" + fmt(v).slice(3) : (v < 0 ? "−" + fmt(-v).slice(3) : "0");
+        bHtml += '<div class="b">' + esc(nm) + '<span class="' + cls + '">' + txt + '</span></div>';
+      }
+    }
+    $("balList").innerHTML = bHtml;
+  }
+
+  /* ---------- actions ---------- */
+  $("addForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var title = $("fTitle").value.trim();
+    var amount = parseFloat($("fAmount").value);
+    if (!title || !(amount > 0) || !selected.length) return;
+    var rec = {
+      title: title, amount: amount, currency: $("fCur").value,
+      payer: $("fPayer").value, participants: selected.slice(), createdAt: Date.now()
+    };
+    if (db){
+      db.collection("expenses").add(rec).catch(function(){ alert("記帳沒有存成功，請再試一次。"); });
+    } else {
+      rec.id = "local-" + Date.now() + "-" + Math.random().toString(36).slice(2,7);
+      expenses.push(rec); render();
+    }
+    $("fTitle").value = ""; $("fAmount").value = "";
+    setAllChips(true); $("fTitle").focus();
+  });
+
+  $("expList").addEventListener("click", function(ev){
+    var btn = ev.target.closest(".del"); if (!btn) return;
+    var id = btn.getAttribute("data-id"), e = null;
+    for (var i=0;i<expenses.length;i++) if (expenses[i].id === id) e = expenses[i];
+    if (!e) return;
+    if (!confirm("刪除「" + e.title + "」？這個動作沒辦法復原。")) return;
+    if (db){
+      db.doc("expenses/" + id).delete().catch(function(){ alert("刪除沒有成功，請再試一次。"); });
+    } else {
+      expenses = expenses.filter(function(x){ return x.id !== id; }); render();
+    }
+  });
+
+  var rateInput = $("fRate"), rateTimer = null;
+  rateInput.value = DEFAULT_RATE;
+  rateInput.addEventListener("input", function(){
+    var v = parseFloat(rateInput.value);
+    if (!(v > 0)) return;
+    rate = v; render();
+    if (db){
+      clearTimeout(rateTimer);
+      rateTimer = setTimeout(function(){ db.doc("config/settings").set({ rate: v }).catch(function(){}); }, 700);
+    }
+  });
+
+  renderRoster();
+  renderPosts();
+
+  /* ---------- shared store (Firebase Firestore) ---------- */
+  /* 這是唯一跟平台有關的程式。下面的 config 由 Firebase 主控台取得；
+     它本來就是公開的，安全性靠 Firestore 安全規則，不是靠藏這串字。 */
+  var FIREBASE_CONFIG = {
+    apiKey: "REPLACE_ME",
+    authDomain: "REPLACE_ME.firebaseapp.com",
+    projectId: "REPLACE_ME",
+    storageBucket: "REPLACE_ME.firebasestorage.app",
+    messagingSenderId: "REPLACE_ME",
+    appId: "REPLACE_ME"
+  };
+  var ROOT = "trips/bkk2026";   /* 命名空間：不會碰到其他 AOC 的資料 */
+
+  function goOffline(){ $("offline").classList.add("on"); }
+
+  try {
+    if (!window.firebase || !FIREBASE_CONFIG.projectId || FIREBASE_CONFIG.projectId === "REPLACE_ME"){
+      throw new Error("firebase not configured");
+    }
+    firebase.initializeApp(FIREBASE_CONFIG);
+    var fs = firebase.firestore();
+    db = {
+      collection: function(name){ return fs.collection(ROOT + "/" + name); },
+      doc: function(path){ return fs.doc(ROOT + "/" + path); }
+    };
+  } catch(e){ goOffline(); return; }
+
+  db.collection("expenses").onSnapshot(function(snap){
+    var next = [];
+    for (var i=0;i<snap.docs.length;i++){
+      var d = snap.docs[i], data = d.data() || {};
+      next.push({
+        id: d.id,
+        title: data.title || "（未命名）",
+        amount: typeof data.amount === "number" ? data.amount : 0,
+        currency: data.currency === "THB" ? "THB" : "TWD",
+        payer: data.payer || MEMBERS[0],
+        participants: Array.isArray(data.participants) && data.participants.length ? data.participants : MEMBERS.slice(),
+        createdAt: typeof data.createdAt === "number" ? data.createdAt : 0
+      });
+    }
+    expenses = next; render();
+  }, function(){ $("offline").classList.add("on"); });
+
+  db.collection("posts").onSnapshot(function(snap){
+    var next = [];
+    for (var i=0;i<snap.docs.length;i++){
+      var d = snap.docs[i], data = d.data() || {};
+      if (typeof data.text !== "string" || !data.text.trim()) continue;
+      next.push({
+        id: d.id,
+        author: typeof data.author === "string" && data.author ? data.author : "夥伴",
+        text: data.text,
+        kind: (data.kind === "活動" || data.kind === "尋物") ? data.kind : "公告",
+        createdAt: typeof data.createdAt === "number" ? data.createdAt : 0
+      });
+    }
+    posts = next; renderPosts();
+  }, function(){});
+
+  db.collection("members").onSnapshot(function(snap){
+    var next = [];
+    for (var i=0;i<snap.docs.length;i++){
+      var d = snap.docs[i], data = d.data() || {};
+      if (typeof data.name === "string" && data.name.trim()){
+        next.push({ id: d.id, name: data.name.trim(), createdAt: typeof data.createdAt === "number" ? data.createdAt : 0 });
+      }
+    }
+    next.sort(function(a,b){ return a.createdAt - b.createdAt; });
+    extras = next;
+    renderRoster();
+  }, function(){});
+
+  db.doc("config/settings").onSnapshot(function(snap){
+    var data = snap.exists ? (snap.data() || {}) : {};
+    if (typeof data.rate === "number" && data.rate > 0){
+      rate = data.rate;
+      if (document.activeElement !== rateInput) rateInput.value = data.rate;
+      render();
+    }
+  }, function(){});
+  if ("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
