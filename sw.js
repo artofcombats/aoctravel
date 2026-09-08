@@ -1,5 +1,5 @@
 /* 曼谷拳旅手冊 — cache-first shell，改版時把 CACHE 版本號 +1 */
-var CACHE = "bkk2026-v2";
+var CACHE = "bkk2026-v3";
 var SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", function(e){
@@ -27,7 +27,7 @@ self.addEventListener("fetch", function(e){
         }
         return res;
       }).catch(function(){ return hit; });
-      return hit || net;
+      return req.mode === "navigate" ? net : (hit || net);
     })
   );
 });
