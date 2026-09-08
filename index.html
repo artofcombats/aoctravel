@@ -548,7 +548,7 @@
     </section>
 
     <section>
-      <h2 class="display">同行名單 · <span id="rosterCount">14</span> 人</h2>
+      <h2 class="display" id="rosterTitle">同行名單 · <span id="rosterCount">14</span> 人</h2>
       <p class="sub">這次一起出遊的夥伴。名字有誤請告知。<span id="rosterHint">有人要加入或退出，請直接告訴 Brooklyn，由她更新名單。</span></p>
       <div class="names" id="nameList"></div>
 
@@ -655,11 +655,14 @@
   var isAdmin = false;
   (function(){
     var m = /(?:^#|[#&])admin=([^&]+)/.exec(location.hash || "");
+    var fromUrl = false, stored = false;
     if (m && decodeURIComponent(m[1]) === ADMIN_TOKEN){
-      try { localStorage.setItem("bkkAdmin", ADMIN_TOKEN); } catch(e){}
-      history.replaceState(null, "", location.pathname + location.search + "#trip");
+      fromUrl = true;
+      /* 有些瀏覽器（iOS 私密瀏覽、封鎖所有 cookie）不給存，存不進去就把 token 留在網址上 */
+      try { localStorage.setItem("bkkAdmin", ADMIN_TOKEN); stored = localStorage.getItem("bkkAdmin") === ADMIN_TOKEN; } catch(e){ stored = false; }
+      if (stored) history.replaceState(null, "", location.pathname + location.search + "#trip");
     }
-    try { isAdmin = localStorage.getItem("bkkAdmin") === ADMIN_TOKEN; } catch(e){ isAdmin = false; }
+    try { isAdmin = fromUrl || localStorage.getItem("bkkAdmin") === ADMIN_TOKEN; } catch(e){ isAdmin = fromUrl; }
     if (isAdmin){
       document.getElementById("addPersonWrap").hidden = false;
       document.getElementById("rosterHint").textContent = "你是管理者：可以用下面的按鈕新增或移除人員，其他人看不到這個按鈕。";
@@ -1034,6 +1037,34 @@
   renderRoster();
   renderPosts();
 
+  /* ---------- 管理者解鎖 ----------
+     iOS 把「加到主畫面」的 App 和 Safari 的儲存空間分開，Safari 解鎖過的身分不會跟著進 App。
+     所以除了網址帶 token，這裡再提供一個入口：連點「同行名單」標題 5 下輸入密碼。 */
+  (function(){
+    var el = $("rosterTitle"); if (!el) return;
+    var n = 0, t = null;
+    el.style.cursor = "default";
+    el.addEventListener("click", function(){
+      if (isAdmin) return;
+      n++; clearTimeout(t); t = setTimeout(function(){ n = 0; }, 2500);
+      if (n < 5) return;
+      n = 0;
+      var v = window.prompt("輸入管理者密碼");
+      if (v === null) return;
+      if (v.trim() !== ADMIN_TOKEN){ alert("密碼不對。"); return; }
+      try { localStorage.setItem("bkkAdmin", ADMIN_TOKEN); } catch(e){}
+      isAdmin = true;
+      $("addPersonWrap").hidden = false;
+      $("rosterHint").textContent = "你是管理者：可以用下面的按鈕新增或移除人員，其他人看不到這個按鈕。";
+      renderRoster();
+    });
+  })();
+
+  if ("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
   /* ---------- shared store (Firebase Firestore) ---------- */
   /* 這是唯一跟平台有關的程式。config 由 Firebase 主控台取得；
      它本來就是公開的，安全性靠 Firestore 安全規則，不是靠藏這串字。 */
@@ -1113,11 +1144,6 @@
       render();
     }
   }, function(){});
-  if ("serviceWorker" in navigator){
-    window.addEventListener("load", function(){
-      navigator.serviceWorker.register("sw.js").catch(function(){});
-    });
-  }
 })();
 </script>
 </body>
