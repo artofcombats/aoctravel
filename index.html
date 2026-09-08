@@ -94,9 +94,10 @@
     margin:22px 0 0;background:var(--accent);color:var(--on-accent);border-radius:14px;
     padding:20px 22px;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
   }
-  .count b{font-family:Anton,sans-serif;font-size:46px;line-height:1;letter-spacing:.02em}
+  .count b{font-family:Anton,sans-serif;font-size:70px;line-height:.78;letter-spacing:.02em}
   .count span{font-size:15px;opacity:.85}
-  .count .when{flex:0 0 100%;margin:13px 0 0;padding-top:12px;border-top:1px solid rgba(255,255,255,.26);border-top-color:color-mix(in srgb, currentColor 24%, transparent);font-family:"IBM Plex Mono",monospace;font-size:13.5px;letter-spacing:.05em;opacity:.95}
+  .count .route{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:14px;letter-spacing:.06em;opacity:.95}
+  .count .when{flex:0 0 100%;margin:1px 0 0;padding-top:9px;border-top:1px solid rgba(255,255,255,.26);border-top-color:color-mix(in srgb, currentColor 24%, transparent);font-family:"IBM Plex Mono",monospace;font-size:13.5px;letter-spacing:.05em;opacity:.95}
 
   .facts{margin-top:14px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
   .fact{background:var(--panel);padding:13px 15px}
@@ -362,7 +363,8 @@
       <div class="count">
         <b id="cdNum">–</b>
         <span id="cdTxt">天後出發</span>
-        <span class="when">KHH → <mark class="dmk">DMK</mark> · 12/01 → 12/06</span>
+        <span class="route">KHH → <mark class="dmk">DMK</mark></span>
+        <span class="when">12/01（二） → 12/06（日） · 六天五夜</span>
       </div>
 
     </div>
@@ -370,8 +372,8 @@
     <section>
       <h2 class="display">出發前三件事</h2>
       <div class="notes">
-        <p><b>機場是 <mark class="dmk">DMK 廊曼</mark>，不是 BKK 素萬那普。</b>曼谷有兩個機場，自己訂票的人千萬別買錯，回程也一樣。<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
-        <p><b>回程 12/6 是清晨 05:40 的飛機。</b>全團 03:30 就要離開房子。12/5 晚上請提早收行李、早點睡。</p>
+        <p><b><mark class="dmk">DMK 廊曼機場</mark>離 Airbnb 較近。</b>曼谷有兩個機場，訂票時需要注意！<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
+        <p><b>DMK 出發的回程班機是清晨 05:40。</b>會需要大約 03:30 就出發前往機場。</p>
         <p><b>行李額度要自己加購。</b>廉航托運另外算，拳套護具很佔重量，訂票時一起處理。</p>
       </div>
     </section>
@@ -448,11 +450,10 @@
       <h2 class="display">機票</h2>
       <p class="sub">泰國獅航直飛。<b>尚未開票</b>——時刻與票價為查詢時的參考資料。</p>
       <div class="alert">
-        <b>訂票前先看這個：機場是廊曼，不是素萬那普</b>
-        <p>曼谷有兩個機場。我們這班降落的是 <mark class="dmk">DMK 廊曼機場</mark>，離住處只要 20 分鐘。<b>不要買到 BKK 素萬那普</b>——那是另一個機場，在城市另一邊，到住處要多 30 分鐘以上，而且回程也接不上。</p>
+        <b>訂票前先看這個：廊曼機場距離 Airbnb 較近，不是素萬那普</b>
+        <p>曼谷有兩個機場。<mark class="dmk">DMK 廊曼機場</mark>，離住處只要 20 分鐘。<b>BKK 素萬那普</b>——那是另一個機場，在城市另一邊，到住處要多 30 分鐘以上，僅提供參考。</p>
         <div class="pair">
           <span class="yes">✓ DMK · Don Mueang · 廊曼</span>
-          <span>✕ BKK · Suvarnabhumi · 素萬那普</span>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
