@@ -70,7 +70,7 @@
     background:var(--ground); color:var(--ink);
     font-family:"Noto Sans TC","Hiragino Sans TC","Microsoft JhengHei",system-ui,sans-serif;
     line-height:1.65; -webkit-font-smoothing:antialiased;
-    padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));
+    padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));
   }
   .wrap{max-width:760px;margin:0 auto;padding:26px 18px 26px}
   .display{font-family:Anton,"Noto Sans TC",Impact,sans-serif;font-weight:400;letter-spacing:.02em;text-wrap:balance;line-height:1.14}
@@ -96,7 +96,7 @@
   }
   .count b{font-family:Anton,sans-serif;font-size:46px;line-height:1;letter-spacing:.02em}
   .count span{font-size:15px;opacity:.85}
-  .count .when{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.06em;opacity:.85}
+  .count .when{flex:0 0 100%;margin:13px 0 0;padding-top:12px;border-top:1px solid rgba(255,255,255,.26);border-top-color:color-mix(in srgb, currentColor 24%, transparent);font-family:"IBM Plex Mono",monospace;font-size:13.5px;letter-spacing:.05em;opacity:.95}
 
   .facts{margin-top:14px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
   .fact{background:var(--panel);padding:13px 15px}
@@ -358,7 +358,6 @@
       <div class="rule"></div>
       <p class="eyebrow">AOC 格鬥藝術 · Bangkok</p>
       <h1 class="display">曼谷拳旅<em>手冊</em></h1>
-      <p><span id="heroCount">14</span> 人、六天五夜、高雄小港出發。住宿、機票、地址、分帳都在這裡，出發前先存起來。</p>
 
       <div class="count">
         <b id="cdNum">–</b>
@@ -427,7 +426,7 @@
   <!-- ============ STAY + FLY ============ -->
   <div class="page" id="p-stay" hidden>
     <section>
-      <h2 class="display">住宿 · SONGPEEP HOUSE</h2>
+      <h2 class="display">住宿 · BAI BUA HOUSE</h2>
       <p class="sub">Chatuchak 區三層透天，6 房 12 床 7 衛。已訂妥。</p>
       <dl class="facts" style="margin-top:0">
         <div class="fact"><dt>Check-in</dt><dd class="mono">12/1 · 15:00 後</dd></div>
@@ -438,7 +437,7 @@
       <div class="block" style="margin-top:12px">
         <dl class="kv">
           <dt>地址</dt><dd>677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900</dd>
-          <dt>地圖</dt><dd>Google 地圖上顯示的名字是 <b>Bai bua house</b>，不是 SONGPEEP house。開進 Soi Ladprao 5/1 到巷底，右手邊的綠色房子。</dd>
+          <dt>地圖</dt><dd>Google 地圖直接搜尋 <b>Bai bua house</b>（Airbnb 上的名字是 SONGPEEP house）。開進 Soi Ladprao 5/1 到巷底，右手邊的綠色房子。</dd>
         </dl>
         <div class="thai"><div class="thai-t">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div><button type="button" class="copy" data-copy="บ้านเลขที่ 677/38\nซอยลาดพร้าว 5/1 แขวงจอมพล\nกรุงเทพฯ 10900" aria-label="複製泰文地址"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>複製</span></button></div>
         <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Bai+bua+house+Soi+Ladprao+5%2F1+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
@@ -744,7 +743,7 @@
     }
     $("nameList").innerHTML = html;
     $("rosterCount").textContent = String(MEMBERS.length);
-    $("heroCount").textContent = String(MEMBERS.length);
+    var _hc = $("heroCount"); if (_hc) _hc.textContent = String(MEMBERS.length);
 
     // payer select: keep current choice if it still exists
     var prev = $("fPayer").value;
