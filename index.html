@@ -282,7 +282,8 @@
   .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:700}
   .mini{font-size:12px;padding:5px 10px;border-radius:7px;background:var(--panel-2);border:1px solid var(--line-strong);color:var(--ink-2);cursor:pointer}
   .mini:hover{border-color:var(--accent);color:var(--accent)}
-  button.primary{background:var(--accent);color:var(--on-accent);border:none;border-radius:9px;padding:12px 22px;font-weight:700;cursor:pointer;align-self:flex-start;letter-spacing:.03em}
+  button.primary{background:var(--accent);color:var(--on-accent);border:1px solid transparent;border-radius:8px;padding:7px 18px;font-size:13.5px;font-weight:700;cursor:pointer;align-self:flex-start;letter-spacing:.03em}
+  #postSend,#postCancel{width:56px;height:41px;padding:0;font-size:15px;line-height:1;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
   button.primary:hover{background:var(--accent-ink)}
   button.primary:disabled{opacity:.45;cursor:not-allowed}
 
@@ -372,7 +373,7 @@
     <section>
       <h2 class="display">出發前三件事</h2>
       <div class="notes">
-        <p><b><mark class="dmk">DMK 廊曼機場</mark>離 Airbnb 較近。</b>曼谷有兩個機場，訂票時需要注意！<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
+        <p><b><mark class="dmk">DMK 廊曼機場</mark> 離 Airbnb 較近。</b>曼谷有兩個機場，訂票時需要注意！<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
         <p><b>DMK 出發的回程班機是清晨 05:40。</b>會需要大約 03:30 就出發前往機場。</p>
         <p><b>行李額度要自己加購。</b>廉航托運另外算，拳套護具很佔重量，訂票時一起處理。</p>
       </div>
@@ -393,7 +394,7 @@
         <label class="f"><span>想說什麼</span><textarea id="postText" maxlength="400" placeholder="例：明天晚上有人要一起去看拳賽嗎？&#10;例：我的紅色水壺不見了，有人看到嗎？"></textarea></label>
         <div style="display:flex;gap:8px;align-items:center">
           <button type="submit" class="primary" id="postSend">發布</button>
-          <button type="button" class="mini" id="postCancel" style="padding:11px 15px">取消</button>
+          <button type="button" class="mini" id="postCancel">取消</button>
         </div>
       </form>
 
@@ -548,7 +549,7 @@
 
     <section>
       <h2 class="display">同行名單 · <span id="rosterCount">14</span> 人</h2>
-      <p class="sub">名字有誤請告知，機票開票後就不能改。<span id="rosterHint">有人要加入或退出，請直接告訴 Brooklyn，由她更新名單。</span></p>
+      <p class="sub">這次一起出遊的夥伴。名字有誤請告知。<span id="rosterHint">有人要加入或退出，請直接告訴 Brooklyn，由她更新名單。</span></p>
       <div class="names" id="nameList"></div>
 
       <div id="addPersonWrap" style="margin-top:12px" hidden>
@@ -592,7 +593,7 @@
           </div>
           <div class="chips" id="fWho"></div>
         </div>
-        <button type="submit" class="primary" id="submitBtn">記一筆</button>
+        <button type="submit" class="primary" id="submitBtn" style="padding:11px 22px;font-size:15px">記一筆</button>
       </form>
 
       <div class="exp" id="expList"></div>
