@@ -666,7 +666,7 @@
     }
   })();
 
-  var db = null, expenses = [], posts = [], rate = DEFAULT_RATE, selected = MEMBERS.slice();
+  var db = null, expenses = [], posts = [], rate = DEFAULT_RATE, selected = [];
   var postKind = "公告";
   var $ = function(id){ return document.getElementById(id); };
   var fmt = function(n){ return "NT$" + Math.round(n).toLocaleString("en-US"); };
@@ -758,14 +758,14 @@
     $("postWho").innerHTML = opt;
     if (MEMBERS.indexOf(prevW) >= 0) $("postWho").value = prevW;
 
-    // participant chips: keep current selection, new people default on
+    // participant chips: keep current selection, default is none selected
     var was = {}, j;
     var chipsNow = $("fWho").querySelectorAll(".chip");
     var hadAny = chipsNow.length > 0;
     for (j=0;j<chipsNow.length;j++) was[chipsNow[j].getAttribute("data-n")] = chipsNow[j].getAttribute("aria-pressed") === "true";
     var chips = "";
     for (i=0;i<MEMBERS.length;i++){
-      var on = hadAny ? (was[MEMBERS[i]] !== false) : true;
+      var on = hadAny ? (was[MEMBERS[i]] === true) : false;
       chips += '<button type="button" class="chip" aria-pressed="'+(on ? "true" : "false")+'" data-n="'+esc(MEMBERS[i])+'">'+esc(MEMBERS[i])+'</button>';
     }
     $("fWho").innerHTML = chips;
@@ -1003,7 +1003,7 @@
       expenses.push(rec); render();
     }
     $("fTitle").value = ""; $("fAmount").value = "";
-    setAllChips(true); $("fTitle").focus();
+    setAllChips(false); $("fTitle").focus();
   });
 
   $("expList").addEventListener("click", function(ev){
