@@ -1,5 +1,5 @@
 /* 曼谷拳旅手冊 — cache-first shell，改版時把 CACHE 版本號 +1 */
-var CACHE = "bkk2026-v3";
+var CACHE = "bkk2026-v4";
 var SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", function(e){
@@ -20,7 +20,7 @@ self.addEventListener("fetch", function(e){
   if (url.origin !== location.origin) return;           /* 資料與字型走網路，不快取 */
   e.respondWith(
     caches.match(req).then(function(hit){
-      var net = fetch(req).then(function(res){
+      var net = fetch(req.mode === "navigate" ? new Request(req.url, {cache: "reload"}) : req).then(function(res){
         if (res && res.status === 200){
           var copy = res.clone();
           caches.open(CACHE).then(function(c){ c.put(req, copy); });
