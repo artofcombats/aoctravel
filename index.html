@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#14584A">
 <meta name="color-scheme" content="light dark">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="曼谷拳旅">
+<meta name="apple-mobile-web-app-title" content="AOC TRAVEL">
 <meta name="mobile-web-app-capable" content="yes">
 <style>
   html{color-scheme:light dark}
@@ -145,7 +145,26 @@
   .post .meta .who{font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap}
   .post .meta .ago{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);white-space:nowrap;letter-spacing:-.01em}
 
-  .apps{display:flex;flex-direction:column;gap:10px}
+  .apps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  a.appcard{
+    display:flex;flex-direction:column;gap:5px;text-decoration:none;color:inherit;min-width:0;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+  }
+  a.appcard:hover{border-color:var(--accent)}
+  a.appcard:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  a.appcard b{font-size:18px;letter-spacing:.01em}
+  a.appcard span{font-size:12.5px;color:var(--ink-3);line-height:1.5}
+  a.appcard em{
+    font-style:normal;margin-top:6px;align-self:flex-start;font-size:13px;font-weight:700;
+    background:var(--accent);color:var(--on-accent);padding:7px 12px;border-radius:8px;
+  }
+  .tip{background:var(--gold-soft);border-left:4px solid var(--gold);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+  .tip p{margin:0;font-size:14px;color:var(--ink);line-height:1.6}
+  .tip b{color:var(--gold)}
+  .block-h.tight{justify-content:flex-start;align-items:center;gap:9px}
+  .badge{font-family:"Noto Sans TC",sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;padding:4px 10px;border-radius:6px;white-space:nowrap}
+  .badge.gym{background:var(--accent);color:var(--on-accent)}
+  .badge.stay{background:var(--gold);color:var(--on-accent)}
   .app{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
   .app-tx{flex:1 1 190px;display:flex;flex-direction:column;gap:3px;min-width:0}
   .app-tx b{font-size:17px;letter-spacing:.01em}
@@ -184,7 +203,17 @@
   .kv{display:grid;grid-template-columns:64px 1fr;gap:6px 14px;font-size:14px;align-items:baseline;margin:0}
   .kv dt{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
   .kv dd{margin:0}
-  .thai{font-size:15px;line-height:1.95;background:var(--panel-2);border-radius:9px;padding:13px 15px;user-select:all;-webkit-user-select:all}
+  .thai{background:var(--panel-2);border-radius:9px;padding:12px 13px 12px 15px;display:flex;gap:10px;align-items:flex-start}
+  .thai-t{flex:1;font-size:15px;line-height:1.95;min-width:0}
+  button.copy{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:9px;padding:8px 10px;color:var(--ink-2);
+    font-size:11px;font-weight:700;letter-spacing:.04em;
+  }
+  button.copy svg{width:18px;height:18px}
+  button.copy:hover{border-color:var(--accent);color:var(--accent)}
+  button.copy.done{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+  button.copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   a.maplink{align-self:flex-start;font-size:13px;font-weight:700;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--line-strong);padding-bottom:1px}
   a.maplink:hover{border-bottom-color:var(--accent)}
   a.maplink:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
@@ -234,10 +263,6 @@
   .notes b{color:var(--ink)}
 
   /* ---------- split ---------- */
-  .tiles{display:grid;gap:8px;grid-template-columns:repeat(3,1fr);margin:0 0 15px}
-  .tile{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px 13px;min-width:0}
-  .tile dt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin:0 0 5px}
-  .tile dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:clamp(15px,4.6vw,21px);font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 
   form.add{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:13px}
   .row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
@@ -338,16 +363,19 @@
       <div class="count">
         <b id="cdNum">–</b>
         <span id="cdTxt">天後出發</span>
-        <span class="when">12 / 01 → 12 / 06</span>
+        <span class="when">KHH → <mark class="dmk">DMK</mark> · 12/01 → 12/06</span>
       </div>
 
-      <dl class="facts">
-        <div class="fact"><dt>People</dt><dd class="mono" id="headCount">14 人</dd></div>
-        <div class="fact"><dt>Route</dt><dd class="mono">KHH → <mark class="dmk">DMK</mark></dd></div>
-        <div class="fact"><dt>Stay</dt><dd>SONGPEEP house</dd></div>
-        <div class="fact"><dt>Train</dt><dd class="mono">12/2 – 12/5</dd></div>
-      </dl>
     </div>
+
+    <section>
+      <h2 class="display">出發前三件事</h2>
+      <div class="notes">
+        <p><b>機場是 <mark class="dmk">DMK 廊曼</mark>，不是 BKK 素萬那普。</b>曼谷有兩個機場，自己訂票的人千萬別買錯，回程也一樣。<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
+        <p><b>回程 12/6 是清晨 05:40 的飛機。</b>全團 03:30 就要離開房子。12/5 晚上請提早收行李、早點睡。</p>
+        <p><b>行李額度要自己加購。</b>廉航托運另外算，拳套護具很佔重量，訂票時一起處理。</p>
+      </div>
+    </section>
 
     <section>
       <h2 class="display">公告板</h2>
@@ -383,7 +411,7 @@
         </button>
         <button class="door" data-go="trip">
           <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.2s7-6.3 7-11.2a7 7 0 1 0-14 0c0 4.9 7 11.2 7 11.2z"/><circle cx="12" cy="10" r="2.6"/></svg></span>
-          <span class="tx"><b>行程與地址簿</b><span>叫車 App、泰文地址、同行名單</span></span>
+          <span class="tx"><b>行程與地址簿</b><span>叫車 App、泰文地址一鍵複製、同行名單</span></span>
           <span class="go" aria-hidden="true">›</span>
         </button>
         <button class="door" data-go="cost">
@@ -394,14 +422,6 @@
       </div>
     </section>
 
-    <section>
-      <h2 class="display">出發前三件事</h2>
-      <div class="notes">
-        <p><b>機場是 <mark class="dmk">DMK 廊曼</mark>，不是 BKK 素萬那普。</b>曼谷有兩個機場，自己訂票的人千萬別買錯，回程也一樣。<br><b>護照效期要撐到 2027/06/06 之後。</b>泰國入境規定離境日起算滿 6 個月。現在就翻出來看，不夠的立刻去辦。</p>
-        <p><b>回程 12/6 是清晨 05:40 的飛機。</b>全團 03:30 就要離開房子。12/5 晚上請提早收行李、早點睡。</p>
-        <p><b>行李額度要自己加購。</b>廉航托運另外算，拳套護具很佔重量，訂票時一起處理。</p>
-      </div>
-    </section>
   </div>
 
   <!-- ============ STAY + FLY ============ -->
@@ -420,7 +440,7 @@
           <dt>地址</dt><dd>677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900</dd>
           <dt>地圖</dt><dd>Google 地圖上顯示的名字是 <b>Bai bua house</b>，不是 SONGPEEP house。開進 Soi Ladprao 5/1 到巷底，右手邊的綠色房子。</dd>
         </dl>
-        <div class="thai">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div>
+        <div class="thai"><div class="thai-t">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div><button type="button" class="copy" data-copy="บ้านเลขที่ 677/38\nซอยลาดพร้าว 5/1 แขวงจอมพล\nกรุงเทพฯ 10900" aria-label="複製泰文地址"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>複製</span></button></div>
         <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Bai+bua+house+Soi+Ladprao+5%2F1+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
       </div>
     </section>
@@ -467,28 +487,18 @@
       <h2 class="display">出發前先裝好叫車 App</h2>
       <p class="sub">曼谷不建議路邊攔車。這兩個 app 在台灣就要先裝好、註冊好、綁好信用卡——落地才裝會很慌。</p>
       <div class="apps">
-        <div class="app">
-          <div class="app-tx">
-            <b>Grab</b>
-            <span>東南亞最通用，車最多，也能叫外送。首選。</span>
-          </div>
-          <div class="app-links">
-            <a class="store ios" href="https://apps.apple.com/tw/app/id647268330" target="_blank" rel="noopener">iPhone 下載</a>
-            <a class="store" href="https://play.google.com/store/apps/details?id=com.grabtaxi.passenger" target="_blank" rel="noopener">Android</a>
-          </div>
-        </div>
-        <div class="app">
-          <div class="app-tx">
-            <b>Bolt</b>
-            <span>通常比 Grab 便宜一點，尖峰時段 Grab 叫不到車就用它。</span>
-          </div>
-          <div class="app-links">
-            <a class="store ios" href="https://apps.apple.com/tw/app/id675033630" target="_blank" rel="noopener">iPhone 下載</a>
-            <a class="store" href="https://play.google.com/store/apps/details?id=ee.mtakso.client" target="_blank" rel="noopener">Android</a>
-          </div>
-        </div>
+        <a class="appcard" href="https://apps.apple.com/tw/app/id647268330" target="_blank" rel="noopener">
+          <b>Grab</b>
+          <span>東南亞最通用，車最多。首選。</span>
+          <em>iPhone 下載 →</em>
+        </a>
+        <a class="appcard" href="https://apps.apple.com/tw/app/id675033630" target="_blank" rel="noopener">
+          <b>Bolt</b>
+          <span>常比 Grab 便宜，尖峰叫不到車就用它。</span>
+          <em>iPhone 下載 →</em>
+        </a>
       </div>
-      <div class="notes" style="margin-top:14px">
+      <div class="tip" style="margin-top:12px">
         <p><b>兩個都裝。</b>同一段路兩邊比價，差價常常有三四十泰銖；而且下班時間一家叫不到車是常態。</p>
         <p><b>先在台灣註冊、綁卡。</b>註冊要收簡訊驗證碼，到了泰國換卡或漫遊都可能收不到。綁好卡也不用跟司機找零。</p>
       </div>
@@ -496,40 +506,41 @@
 
     <section>
       <h2 class="display">地址簿 · 給司機看</h2>
-      <p class="sub">泰文地址長按可整段複製，或直接把螢幕轉給司機看。三個地點都在 Chatuchak／Phaya Thai 一帶。</p>
+      <p class="sub">按「複製」就能把泰文地址貼進 Grab，或直接把螢幕轉給司機看。三個地點都在 Chatuchak／Phaya Thai 一帶。</p>
 
       <div style="display:flex;flex-direction:column;gap:12px">
         <div class="block">
-          <div class="block-h"><b>F.A. Group Muay Thai</b><span>離住處 ~1 KM</span></div>
+          <div class="block-h tight"><span class="badge gym">拳館</span><b>F.A. Group Muay Thai</b></div>
           <dl class="kv">
             <dt>地址</dt><dd>270 / 166 Vibhavadi Rangsit Rd, Chom Phon, Chatuchak, Bangkok 10900</dd>
-            <dt>交通</dt><dd>走路約 15 分鐘 · Grab 約 5 分鐘</dd>
+            <dt>交通</dt><dd>離住處約 1 km · 走路 15 分鐘 · Grab 5 分鐘</dd>
           </dl>
-          <div class="thai">เลขที่ 270/166 ถนนวิภาวดีรังสิต<br>แขวงจอมพล เขตจตุจักร<br>กรุงเทพฯ 10900</div>
+          <div class="thai"><div class="thai-t">เลขที่ 270/166 ถนนวิภาวดีรังสิต<br>แขวงจอมพล เขตจตุจักร<br>กรุงเทพฯ 10900</div><button type="button" class="copy" data-copy="เลขที่ 270/166 ถนนวิภาวดีรังสิต\nแขวงจอมพล เขตจตุจักร\nกรุงเทพฯ 10900" aria-label="複製泰文地址"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>複製</span></button></div>
           <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=F.A.+Group+Muay+Thai+Vibhavadi+Rangsit+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
         </div>
 
         <div class="block">
-          <div class="block-h"><b>Tded99 Muaythai Gym</b><span>離住處 ~3 KM</span></div>
+          <div class="block-h tight"><span class="badge gym">拳館</span><b>Tded99 Muaythai Gym</b></div>
           <dl class="kv">
             <dt>地址</dt><dd>13-15 Soi Inthamara 9, Sutthisan Winitchai Rd, Phaya Thai, Bangkok 10400</dd>
+            <dt>交通</dt><dd>離住處約 3 km · Grab 10 分鐘</dd>
             <dt>時間</dt><dd>週一～週六 07:00–20:00，<b>週日休</b> · 團體課 15:00–19:00</dd>
           </dl>
-          <div class="thai">เลขที่ 13-15 ซอยอินทามระ 9<br>ถนนสุทธิสารวินิจฉัย เขตพญาไท<br>กรุงเทพฯ 10400</div>
+          <div class="thai"><div class="thai-t">เลขที่ 13-15 ซอยอินทามระ 9<br>ถนนสุทธิสารวินิจฉัย เขตพญาไท<br>กรุงเทพฯ 10400</div><button type="button" class="copy" data-copy="เลขที่ 13-15 ซอยอินทามระ 9\nถนนสุทธิสารวินิจฉัย เขตพญาไท\nกรุงเทพฯ 10400" aria-label="複製泰文地址"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>複製</span></button></div>
           <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Tded99+Muay+Thai+Gym+Inthamara+9+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
         </div>
 
         <div class="block">
-          <div class="block-h"><b>回家 · SONGPEEP house</b><span>住處</span></div>
+          <div class="block-h tight"><span class="badge stay">住宿</span><b>Bai bua house</b></div>
           <dl class="kv">
-            <dt>地址</dt><dd>677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900<br><span style="color:var(--ink-3);font-size:13px">地圖上叫 <b>Bai bua house</b>，巷底右手邊綠色房子</span></dd>
+            <dt>地址</dt><dd>677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900<br><span style="color:var(--ink-3);font-size:13px">Airbnb 上叫 SONGPEEP house；巷底右手邊綠色房子</span></dd>
           </dl>
-          <div class="thai">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div>
+          <div class="thai"><div class="thai-t">บ้านเลขที่ 677/38<br>ซอยลาดพร้าว 5/1 แขวงจอมพล<br>กรุงเทพฯ 10900</div><button type="button" class="copy" data-copy="บ้านเลขที่ 677/38\nซอยลาดพร้าว 5/1 แขวงจอมพล\nกรุงเทพฯ 10900" aria-label="複製泰文地址"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>複製</span></button></div>
           <a class="maplink" href="https://www.google.com/maps/search/?api=1&amp;query=Bai+bua+house+Soi+Ladprao+5%2F1+Bangkok" target="_blank" rel="noopener">在 Google 地圖開啟 →</a>
         </div>
       </div>
 
-      <div class="notes" style="margin-top:15px">
+      <div class="tip" style="margin-top:14px">
         <p><b>叫車順序：先用地圖定位，泰文地址當備案。</b>Grab 直接搜店名最準；攔街邊計程車就把泰文那幾行給司機看。</p>
         <p><b>泰文是照英文地址轉寫的。</b>出發前建議跟拳館再核對一次，尤其 F.A. Group 的門牌網路上有 270 和 166 兩種寫法。</p>
       </div>
@@ -561,11 +572,6 @@
 
       <div class="banner warn" id="offline"><b>離線模式：</b>這個裝置沒能連上共用紀錄，你的輸入只留在這個瀏覽器、不會同步給其他人。換個網路或重新整理再試。</div>
 
-      <dl class="tiles">
-        <div class="tile"><dt>總支出</dt><dd id="tTotal">NT$0</dd></div>
-        <div class="tile"><dt>筆數</dt><dd id="tCount">0</dd></div>
-        <div class="tile"><dt>人均</dt><dd id="tAvg">NT$0</dd></div>
-      </dl>
 
       <form class="add" id="addForm">
         <div class="row">
@@ -691,6 +697,24 @@
   window.addEventListener("hashchange", function(){ show((location.hash || "").replace("#","")); });
   show((location.hash || "").replace("#",""));
 
+  /* ---------- copy buttons ---------- */
+  document.addEventListener("click", function(ev){
+    var b = ev.target.closest("button.copy"); if (!b) return;
+    var txt = (b.getAttribute("data-copy") || "").replace(/\\n/g, "\n");
+    function done(){
+      b.classList.add("done"); var lab = b.querySelector("span"); if (lab) lab.textContent = "已複製";
+      setTimeout(function(){ b.classList.remove("done"); if (lab) lab.textContent = "複製"; }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done, function(){ fallback(); });
+    } else fallback();
+    function fallback(){
+      var ta = document.createElement("textarea"); ta.value = txt; ta.setAttribute("readonly","");
+      ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta);
+      ta.select(); try { document.execCommand("copy"); done(); } catch(e){} document.body.removeChild(ta);
+    }
+  });
+
   /* ---------- countdown ---------- */
   (function(){
     var dep = new Date(2026,11,1);
@@ -720,7 +744,6 @@
     }
     $("nameList").innerHTML = html;
     $("rosterCount").textContent = String(MEMBERS.length);
-    $("headCount").textContent = MEMBERS.length + " 人";
     $("heroCount").textContent = String(MEMBERS.length);
 
     // payer select: keep current choice if it still exists
@@ -923,11 +946,7 @@
 
   /* ---------- render ---------- */
   function render(){
-    var total = 0, i;
-    for (i=0;i<expenses.length;i++) total += twd(expenses[i]);
-    $("tTotal").textContent = fmt(total);
-    $("tCount").textContent = String(expenses.length);
-    $("tAvg").textContent = fmt(total / MEMBERS.length);
+    var i;
 
     var html = "";
     var sorted = expenses.slice().sort(function(a,b){ return (b.createdAt||0) - (a.createdAt||0); });
@@ -1015,7 +1034,7 @@
   renderPosts();
 
   /* ---------- shared store (Firebase Firestore) ---------- */
-  /* 這是唯一跟平台有關的程式。下面的 config 由 Firebase 主控台取得；
+  /* 這是唯一跟平台有關的程式。config 由 Firebase 主控台取得；
      它本來就是公開的，安全性靠 Firestore 安全規則，不是靠藏這串字。 */
   var FIREBASE_CONFIG = {
     apiKey: "AIzaSyA0lED7dl2BpPTF0XwQdW4bb70MbjSsfDE",
@@ -1030,9 +1049,7 @@
   function goOffline(){ $("offline").classList.add("on"); }
 
   try {
-    if (!window.firebase || !FIREBASE_CONFIG.projectId || FIREBASE_CONFIG.projectId === "REPLACE_ME"){
-      throw new Error("firebase not configured");
-    }
+    if (!window.firebase || !FIREBASE_CONFIG.projectId){ throw new Error("firebase not configured"); }
     firebase.initializeApp(FIREBASE_CONFIG);
     var fs = firebase.firestore();
     db = {
