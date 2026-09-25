@@ -10,3 +10,5 @@
 ## 這個資料夾怎麼上線
 Cloudflare 的 aoctravel-push Worker 已連到這個 GitHub repo，根目錄設為 `push-worker`。
 只要把改好的檔案上傳到 GitHub，Cloudflare 會自動重新部署。
+
+Deploy command: npx wrangler deploy --config push-worker/wrangler.jsonc
