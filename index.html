@@ -160,6 +160,8 @@
     background:var(--accent);color:var(--on-accent);padding:7px 12px;border-radius:8px;
   }
   .tip{background:var(--gold-soft);border-left:4px solid var(--gold);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:8px}
+  .pushbar{background:var(--gold-soft);border-left:4px solid var(--gold);border-radius:10px;padding:13px 15px;margin:0 0 13px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;font-size:14px;line-height:1.7}
+  .pushbar b{display:block;margin-bottom:2px}
   .tip p{margin:0;font-size:14px;color:var(--ink);line-height:1.6}
   .tip b{color:var(--gold)}
   .block-h.tight{justify-content:flex-start;align-items:center;gap:9px}
@@ -382,6 +384,11 @@
     <section>
       <h2 class="display">公告板</h2>
       <p class="sub">臨時想揪活動、東西掉了、有事要提醒大家——貼在這裡，全團都看得到。</p>
+
+      <div class="pushbar" id="pushBar" hidden>
+        <div id="pushBarBody"></div>
+        <button type="button" class="mini" id="pushBtn" style="padding:8px 16px;font-size:14px">開啟通知</button>
+      </div>
 
       <button type="button" class="ghost" id="postOpen">＋ 發布公告</button>
       <form class="postform" id="postForm" hidden>
@@ -889,7 +896,7 @@
     if (!text) return;
     var rec = { author: $("postWho").value, text: text, kind: postKind, createdAt: Date.now() };
     if (db){
-      db.collection("posts").add(rec).catch(function(){ alert("發布沒有成功，請再試一次。"); });
+      db.collection("posts").add(rec).then(function(){ notifyPost(rec); }).catch(function(){ alert("發布沒有成功，請再試一次。"); });
     } else {
       rec.id = "local-" + Date.now(); posts.push(rec); renderPosts();
     }
@@ -1036,6 +1043,116 @@
 
   renderRoster();
   renderPosts();
+
+  /* ---------- 推播通知（v2） ----------
+     發送端是 Cloudflare Worker；VAPID 公鑰和 PUSH_TOKEN 本來就會出現在前端，
+     它們只用來「發起」通知，私鑰在 Worker 的機密設定裡，前端拿不到。 */
+  var PUSH_API   = "https://aoctravel-push.artofcombats.workers.dev";
+  var PUSH_VAPID = "BPmdUXTrSg-iKQagyFrfWF4JfGVYBRrQSxBJ7a3bZ_-IhK7MEa9ziggk_T9Olrm4akJmek7B5J7oKcJ8PejHt4Y";
+  var PUSH_TOKEN = "bkkpush-VKebj89sNRz2Vxrw";
+
+  function pushReady(){ return PUSH_API.indexOf("REPLACE") < 0; }
+  function pushSupported(){
+    return ("serviceWorker" in navigator) && ("PushManager" in window) && ("Notification" in window);
+  }
+  function isStandalone(){
+    if (window.navigator.standalone === true) return true;
+    return !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  }
+  function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent); }
+  function b64ToU8(s){
+    var pad = "=".repeat((4 - s.length % 4) % 4);
+    var raw = atob((s + pad).replace(/-/g, "+").replace(/_/g, "/"));
+    var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function savedEndpoint(){ try { return localStorage.getItem("bkkPushEndpoint"); } catch(e){ return null; } }
+
+  function renderPushBar(){
+    var bar = $("pushBar"); if (!bar) return;
+    if (!pushReady() || !pushSupported()){ bar.hidden = true; return; }
+    var perm = Notification.permission;
+    if (perm === "granted" && savedEndpoint()){ bar.hidden = true; return; }
+    bar.hidden = false;
+    $("pushBtn").hidden = false;
+    if (perm === "denied"){
+      $("pushBarBody").innerHTML = "<b>通知被關掉了。</b>到 設定 → 通知 → 曼谷拳旅手冊，把「允許通知」打開，再回來按一次。";
+      $("pushBtn").textContent = "再試一次";
+    } else {
+      $("pushBarBody").innerHTML = "<b>要收到公告通知，先做兩步</b>1. Safari 分享 → 加入主畫面<br>2. 從主畫面開啟後，按這裡 →<br><span style=\"color:var(--ink-2)\">沒做的人不會收到任何提醒。</span>";
+      $("pushBtn").textContent = "開啟通知";
+    }
+  }
+
+  function enablePush(){
+    if (!pushSupported()){ alert("這支手機的瀏覽器不支援推播通知。"); return; }
+    if (isIOS() && !isStandalone()){
+      alert("iPhone 要先用 Safari 的「分享 → 加入主畫面」，再從主畫面那顆 App 開啟，才能開啟通知。");
+      return;
+    }
+    var btn = $("pushBtn"); btn.disabled = true;
+    Notification.requestPermission().then(function(perm){
+      if (perm !== "granted"){ renderPushBar(); return null; }
+      return navigator.serviceWorker.ready.then(function(reg){
+        return reg.pushManager.getSubscription().then(function(existing){
+          if (existing) return existing;
+          return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(PUSH_VAPID) });
+        });
+      }).then(function(sub){
+        var label = ""; try { label = $("postWho").value || ""; } catch(e){}
+        return fetch(PUSH_API + "/subscribe", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ subscription: sub.toJSON(), label: label })
+        }).then(function(res){
+          if (!res.ok) throw new Error("subscribe failed");
+          try { localStorage.setItem("bkkPushEndpoint", sub.endpoint); } catch(e){}
+          $("pushBarBody").innerHTML = "通知已開啟。有人發公告時你會收到提醒，圖示上也會有紅點。";
+          $("pushBtn").hidden = true;
+          setTimeout(function(){ var b = $("pushBar"); if (b) b.hidden = true; }, 6000);
+        });
+      });
+    }).catch(function(){
+      alert("開啟通知沒有成功，請再試一次。");
+    }).then(function(){ btn.disabled = false; });
+  }
+
+  function notifyPost(rec){
+    if (!pushReady()) return;
+    var label = KIND_LABEL[rec.kind] || "公告";
+    fetch(PUSH_API + "/notify", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        token: PUSH_TOKEN,
+        title: rec.author + "・" + label,
+        body: String(rec.text).slice(0, 120),
+        url: location.origin + location.pathname + "#home",
+        excludeEndpoint: savedEndpoint()
+      })
+    }).catch(function(){});
+  }
+
+  function clearBadge(){
+    try { if (navigator.clearAppBadge) navigator.clearAppBadge(); } catch(e){}
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.controller){
+        navigator.serviceWorker.controller.postMessage({ type: "clear-unread" });
+      }
+    } catch(e){}
+  }
+
+  if ($("pushBtn")) $("pushBtn").addEventListener("click", enablePush);
+  document.addEventListener("visibilitychange", function(){
+    if (!document.hidden){ clearBadge(); renderPushBar(); }
+  });
+  window.addEventListener("focus", clearBadge);
+  if (navigator.serviceWorker && navigator.serviceWorker.addEventListener){
+    navigator.serviceWorker.addEventListener("message", function(ev){
+      if (ev.data && ev.data.type === "open-board"){ go("home"); clearBadge(); }
+    });
+  }
+  renderPushBar();
+  clearBadge();
 
   /* ---------- 管理者解鎖 ----------
      iOS 把「加到主畫面」的 App 和 Safari 的儲存空間分開，Safari 解鎖過的身分不會跟著進 App。

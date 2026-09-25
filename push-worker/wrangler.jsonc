@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aoctravel-push",
+  "main": "worker.js",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  "vars": {
+    "VAPID_PUBLIC": "BPmdUXTrSg-iKQagyFrfWF4JfGVYBRrQSxBJ7a3bZ_-IhK7MEa9ziggk_T9Olrm4akJmek7B5J7oKcJ8PejHt4Y",
+    "VAPID_SUBJECT": "mailto:artofcombats@gmail.com"
+  },
+  "kv_namespaces": [
+    { "binding": "SUBS", "id": "4d0f953ff40c4facaa47ec5ae43d75c0" }
+  ]
+}
