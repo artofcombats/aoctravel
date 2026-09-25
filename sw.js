@@ -1,5 +1,5 @@
 /* 曼谷拳旅手冊 — cache-first shell，改版時把 CACHE 版本號 +1 */
-var CACHE = "bkk2026-v6";
+var CACHE = "bkk2026-v7";
 var SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", function(e){
@@ -79,16 +79,21 @@ self.addEventListener("push", function(e){
         for (var i = 0; i < visible.length; i++) visible[i].postMessage({ type: "new-post" });
         return;
       }
-      return getUnread().then(function(n){
-        var next = n + 1;
-        return setUnread(next).then(function(){ return setBadge(next); }).then(function(){
-          return self.registration.showNotification(d.title || "曼谷拳旅手冊", {
-            body: d.body || "",
-            icon: "./icon-192.png",
-            badge: "./icon-192.png",
-            tag: d.tag || "bkk-post",
-            renotify: true,
-            data: { url: d.url || "./#home" }
+      /* 未讀數 = 目前還掛在通知中心的則數 + 這一則。
+         比自己存數字可靠：iOS 在推播情境下 Cache Storage 不一定寫得進去。 */
+      return self.registration.getNotifications().then(function(list){
+        return (list && list.length) || 0;
+      }).catch(function(){ return 0; }).then(function(open){
+        return getUnread().then(function(saved){
+          var next = Math.max(open + 1, saved + 1);
+          return setUnread(next).then(function(){ return setBadge(next); }).then(function(){
+            return self.registration.showNotification(d.title || "曼谷拳旅手冊", {
+              body: d.body || "",
+              icon: "./icon-192.png",
+              badge: "./icon-192.png",
+              tag: "bkk-post-" + Date.now(),
+              data: { url: d.url || "./#home" }
+            });
           });
         });
       });
@@ -114,6 +119,12 @@ self.addEventListener("notificationclick", function(e){
 
 self.addEventListener("message", function(e){
   if (e.data && e.data.type === "clear-unread"){
-    e.waitUntil(setUnread(0).then(function(){ return setBadge(0); }));
+    e.waitUntil(
+      self.registration.getNotifications().then(function(list){
+        for (var i = 0; i < (list || []).length; i++) list[i].close();
+      }).catch(function(){})
+      .then(function(){ return setUnread(0); })
+      .then(function(){ return setBadge(0); })
+    );
   }
 });
