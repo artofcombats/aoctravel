@@ -1,5 +1,5 @@
 /* 曼谷拳旅手冊 — cache-first shell，改版時把 CACHE 版本號 +1 */
-var CACHE = "bkk2026-v5";
+var CACHE = "bkk2026-v6";
 var SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 
 self.addEventListener("install", function(e){
@@ -49,8 +49,14 @@ function setUnread(n){
 }
 function setBadge(n){
   try {
-    if (n > 0 && self.registration.setAppBadge) return self.registration.setAppBadge(n);
-    if (n <= 0 && self.registration.clearAppBadge) return self.registration.clearAppBadge();
+    var nav = self.navigator;
+    if (n > 0){
+      if (nav && nav.setAppBadge) return nav.setAppBadge(n);
+      if (self.registration.setAppBadge) return self.registration.setAppBadge(n);
+    } else {
+      if (nav && nav.clearAppBadge) return nav.clearAppBadge();
+      if (self.registration.clearAppBadge) return self.registration.clearAppBadge();
+    }
   } catch(e){}
   return Promise.resolve();
 }
