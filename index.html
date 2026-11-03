@@ -288,6 +288,10 @@
   #postSend,#postCancel{width:56px;height:41px;padding:0;font-size:15px;line-height:1;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
   button.primary:hover{background:var(--accent-ink)}
   button.primary:disabled{opacity:.45;cursor:not-allowed}
+  a.linkbtn{display:inline-flex;align-items:baseline;gap:8px;background:var(--accent);color:var(--on-accent);border-radius:8px;padding:8px 18px;font-size:13.5px;font-weight:700;letter-spacing:.03em;text-decoration:none;margin:-6px 0 16px;align-self:flex-start}
+  a.linkbtn small{font-size:11.5px;font-weight:600;letter-spacing:0;opacity:.8}
+  a.linkbtn:hover{background:var(--accent-ink)}
+  a.linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   .exp{display:flex;flex-direction:column;gap:8px;margin-top:15px}
   .e{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 15px;display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;align-items:center}
@@ -438,6 +442,7 @@
     <section>
       <h2 class="display">住宿 · BAI BUA HOUSE</h2>
       <p class="sub">Chatuchak 區三層透天，6 房 12 床 7 衛。已訂妥。</p>
+      <a class="linkbtn" href="https://www.airbnb.com.tw/rooms/1070809025468549151" target="_blank" rel="noopener">看房間實際照片 <small>Airbnb ↗</small></a>
       <dl class="facts" style="margin-top:0">
         <div class="fact"><dt>Check-in</dt><dd class="mono">12/1 · 15:00 後</dd></div>
         <div class="fact"><dt>Check-out</dt><dd class="mono">12/6 · 清晨</dd></div>
