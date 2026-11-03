@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>房間分配 · 曼谷拳旅</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  /* Blueprint look: one deliberate dark world (glowing cyan wireframe on navy-black), so no light theme. Same model and data as rooms-3d-preview.html. */
+  :root{
+    color-scheme:dark;
+    --ground:#03070F; --panel:#07111F; --panel-2:#0B1A2E;
+    --ink:#D8ECFF; --ink-2:#8DB4DA; --ink-3:#5A7EA3;
+    --line:#123150; --line-strong:#1D4A78;
+    --glow:#3AA0FF; --glow-2:#2477D4; --glow-soft:rgba(58,160,255,.07); --glow-mid:rgba(58,160,255,.16);
+    --halo:rgba(58,160,255,.55);
+    --hot:#FFB547; --hot-soft:rgba(255,181,71,.16); --hot-halo:rgba(255,181,71,.7); --on-hot:#1A0F00;
+    --grid:rgba(58,160,255,.10); --grid-2:rgba(58,160,255,.05);
+    --display:Anton,"Noto Sans TC",Impact,sans-serif;
+    --body:"Noto Sans TC","Hiragino Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding-top:max(26px,calc(env(safe-area-inset-top,0px) + 12px));padding-bottom:max(48px,calc(env(safe-area-inset-bottom,0px) + 24px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+
+  header{display:flex;flex-direction:column;gap:10px}
+  header h1{font-family:var(--display);font-weight:400;font-size:clamp(34px,9vw,52px);line-height:1.05;letter-spacing:.04em;margin:0;text-transform:uppercase;color:var(--ink);text-shadow:0 0 18px var(--halo);text-wrap:balance}
+  header p{margin:0;color:var(--ink-2);font-size:14.5px;max-width:58ch}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--glow);margin:0}
+  .abnb{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:14px;font-weight:700;color:var(--ink);border:1px solid var(--glow);border-radius:8px;padding:8px 14px;background:var(--glow-soft);box-shadow:0 0 12px -2px var(--halo),inset 0 0 10px -4px var(--halo);transition:background .2s}
+  .abnb:hover{background:var(--glow-mid)}
+  .abnb:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+  .abnb span{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--ink-2)}
+
+  /* ---------- 3D stage ---------- */
+  .stage{position:relative;height:var(--stage-h,560px);border:1px solid var(--line-strong);border-radius:6px;background:
+      linear-gradient(var(--grid) 1px,transparent 1px) 0 0/48px 48px,
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/48px 48px,
+      linear-gradient(var(--grid-2) 1px,transparent 1px) 0 0/12px 12px,
+      linear-gradient(90deg,var(--grid-2) 1px,transparent 1px) 0 0/12px 12px,
+      radial-gradient(110% 80% at 50% 45%,#0A1A30 0%,var(--ground) 80%);
+    overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+  .stage:active{cursor:grabbing}
+  .stamp{position:absolute;left:12px;top:12px;bottom:56px;writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--glow);opacity:.75;pointer-events:none;white-space:nowrap;overflow:hidden}
+  .gizmo{position:absolute;left:12px;bottom:12px;width:44px;height:44px;pointer-events:none;opacity:.8}
+  .camera{position:absolute;left:50%;top:50%;width:0;height:0;perspective:1800px}
+  .fit{transform:scale(var(--s,1));transform-style:preserve-3d}
+  .scene{--spin:-34deg;--tilt:63deg;position:absolute;transform-style:preserve-3d;transform:rotateX(var(--tilt)) rotateZ(var(--spin));transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .stage.dragging .scene,.stage.dragging .tag{transition:none}
+  .slab{position:absolute;left:0;top:0;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  .plate{position:absolute;border:1px solid var(--glow);background:
+      linear-gradient(var(--grid) 1px,transparent 1px) 0 0/10px 10px,
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/10px 10px,
+      rgba(8,30,60,.55);
+    box-shadow:0 0 14px -2px var(--halo),inset 0 0 18px -6px var(--halo)}
+
+  .b{position:absolute;transform-style:preserve-3d}
+  .b > i{position:absolute;display:block;border:1px solid var(--glow);background:var(--glow-soft)}
+  .b > .t{inset:0;transform:translateZ(calc(var(--h) + .5px))}
+  .b > .fs{left:0;top:100%;width:100%;height:var(--h);transform-origin:top;transform:rotateX(90deg)}
+  .b > .fn{left:0;top:0;width:100%;height:var(--h);transform-origin:top;transform:rotateX(90deg)}
+  .b > .fe{left:100%;top:0;width:var(--h);height:100%;transform-origin:left;transform:rotateY(-90deg)}
+  .b > .fw{left:0;top:0;width:var(--h);height:100%;transform-origin:left;transform:rotateY(-90deg)}
+  .flat{position:absolute;transform:translateZ(.6px);border:1px dashed var(--glow-2)}
+  .flat span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--glow)}
+
+  /* rooms: floor + 4 low glass walls, no ceiling */
+  .room{cursor:pointer}
+  .room > i{box-shadow:0 0 8px -1px var(--halo);transition:background .3s,border-color .3s,box-shadow .3s}
+  .room > .t{transform:translateZ(.6px);background:rgba(58,160,255,.05);border-width:1.5px}
+  .room > .fs,.room > .fn,.room > .fe,.room > .fw{background:rgba(58,160,255,.12)}
+  .room.hit > i{border-color:var(--hot);box-shadow:0 0 14px 0 var(--hot-halo)}
+  .room.hit > .t{background:var(--hot-soft)}
+  .room.hit > .fs,.room.hit > .fn,.room.hit > .fe,.room.hit > .fw{background:rgba(255,181,71,.28)}
+
+  /* furniture: outline only, pillows as inner lines */
+  .bed > .t::before{content:"";position:absolute;border:1px solid var(--glow)}
+  .bed.up > .t::before{left:12%;right:12%;top:6%;height:16%}
+  .bed.side > .t::before{top:12%;bottom:12%;left:6%;width:16%}
+  .bed > .t::after{content:"";position:absolute;left:0;right:0;top:55%;border-top:1px solid var(--glow-2)}
+  .bed.side > .t::after{left:55%;top:0;bottom:0;right:auto;border-top:0;border-left:1px solid var(--glow-2)}
+  .ctable > i{border-radius:50%} .ctable > .fs,.ctable > .fn,.ctable > .fe,.ctable > .fw{display:none}
+  .fx > .t{border-radius:40%}
+  .step > i{background:rgba(58,160,255,.10)}
+
+  .f-hall{border-color:transparent} .f-tile{background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/7px 7px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/7px 7px;border-color:transparent}
+  .f-bath{background:repeating-linear-gradient(45deg,rgba(58,160,255,.16) 0 1px,transparent 1px 6px)}
+  .f-balcony{background:repeating-linear-gradient(-45deg,rgba(58,160,255,.12) 0 1px,transparent 1px 9px)}
+  .f-garden{background:radial-gradient(circle,rgba(58,160,255,.35) 1px,transparent 1.5px) 0 0/6px 6px}
+  .f-rug{border-style:solid;border-color:var(--glow-2);border-radius:3px;background:var(--glow-soft)}
+
+  /* billboard tags: always face the camera */
+  .tag{position:absolute;width:0;height:0;transform-origin:0 0;transform:translateZ(var(--z,46px)) rotateZ(calc(var(--spin) * -1)) rotateX(calc(var(--tilt) * -1));transition:transform .5s cubic-bezier(.2,.7,.2,1);cursor:pointer}
+  .tag > div{position:absolute;left:0;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+  .tag .pill{background:rgba(3,10,22,.88);border:1px solid var(--glow);border-radius:3px;padding:2px 8px 3px;display:flex;align-items:baseline;gap:6px;white-space:nowrap;box-shadow:0 0 10px -2px var(--halo);transition:background .25s,border-color .25s,box-shadow .25s}
+  .tag .pill b{font-family:var(--display);font-weight:400;font-size:20px;line-height:1.05;letter-spacing:.05em;color:var(--ink)}
+  .tag .pill small{font-family:var(--mono);font-size:10.5px;color:var(--ink-2)}
+  .tag .who{display:none;margin-top:3px;background:var(--hot);color:var(--on-hot);font-size:12px;font-weight:700;border-radius:3px;padding:2px 7px;white-space:nowrap;box-shadow:0 0 12px -2px var(--hot-halo)}
+  .tag .stem{width:1px;height:16px;background:var(--glow);box-shadow:0 0 4px var(--halo)}
+  .tag.hit .pill{background:var(--hot);border-color:var(--hot);box-shadow:0 0 16px 0 var(--hot-halo)}
+  .tag.hit .pill b,.tag.hit .pill small{color:var(--on-hot)}
+  .tag.hit .who{display:block}
+  .tag.hit .stem{background:var(--hot);box-shadow:0 0 4px var(--hot-halo)}
+  .tag.floor .pill{background:transparent;border:0;box-shadow:none;padding:0} .tag.floor .pill b{color:var(--glow);font-size:26px;text-shadow:0 0 12px var(--halo)}
+  .tag.floor .stem{display:none}
+  .stage.picking .tag:not(.hit):not(.floor){opacity:.45}
+
+  .hud{position:absolute;left:66px;right:10px;bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}
+  .hud .hint{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--ink-3);margin-right:auto}
+  .tbtn{pointer-events:auto;font:inherit;font-size:13px;padding:6px 12px;border-radius:4px;border:1px solid var(--line-strong);background:rgba(3,10,22,.8);color:var(--ink-2);cursor:pointer}
+  .tbtn:hover{border-color:var(--glow);color:var(--ink)}
+  .tbtn[aria-pressed="true"]{border-color:var(--glow);color:var(--ink);box-shadow:0 0 10px -3px var(--halo)}
+  .tbtn:focus-visible,.chip:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink-2);margin:-8px 0 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:14px;height:12px;display:inline-block;border:1px solid var(--glow)}
+
+  /* ---------- finder ---------- */
+  .finder{display:flex;flex-direction:column;gap:9px}
+  .finder h2,.list h2{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--glow);margin:0}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font:inherit;font-size:13.5px;padding:6px 12px;border-radius:4px;cursor:pointer;background:var(--panel);border:1px solid var(--line-strong);color:var(--ink-2)}
+  .chip:hover{border-color:var(--glow);color:var(--ink)}
+  .chip[aria-pressed="true"]{background:var(--hot);border-color:var(--hot);color:var(--on-hot);font-weight:700;box-shadow:0 0 12px -3px var(--hot-halo)}
+  .answer{margin:0;padding:12px 14px;border-radius:4px;background:var(--panel);border:1px solid var(--line-strong);font-size:14.5px;color:var(--ink-2);min-height:48px}
+  .answer b{color:var(--hot)}
+
+  /* ---------- list ---------- */
+  .list{display:flex;flex-direction:column;gap:10px}
+  .floor-row{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:start}
+  .floor-row > span{font-family:var(--display);font-size:22px;line-height:1.3;color:var(--glow)}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;min-width:0}
+  .card{background:var(--panel);border:1px solid var(--line-strong);border-radius:4px;padding:8px 10px;min-width:0;transition:border-color .2s,background .2s}
+  .card.hit{border-color:var(--hot);background:#1A1406;box-shadow:0 0 12px -4px var(--hot-halo)}
+  .card-h{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+  .card-h b{font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.05em}
+  .card-h span{font-family:var(--mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+  .card p{margin:2px 0 0;font-size:13.5px;line-height:1.55}
+  .card p span{display:inline-block;margin-right:6px}
+  .card p span.me{color:var(--hot);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+  .foot{font-size:12.5px;color:var(--ink-3);margin:0}
+  @media (max-width:520px){ .cards{grid-template-columns:1fr 1fr} .floor-row{grid-template-columns:30px 1fr} .stamp{display:none} .hud{left:10px} .gizmo{display:none} }
+  @media (prefers-reduced-motion:reduce){ .scene,.slab,.tag,.room > i{transition:none} }
+  .back{align-self:flex-start;font-size:13px;color:var(--ink-2);text-decoration:none;border-radius:4px;padding:2px 0}
+  .back:hover{color:var(--ink)}
+  .back:focus-visible{outline:2px solid var(--hot);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="./#stay">← 回拳旅手冊</a>
+  <header>
+    <p class="eyebrow">Bangkok · Chatuchak · 12/1–12/6</p>
+    <h1>Bai Bua House</h1>
+    <p>三層樓拆開來看：最上面是 3F，最下面是 1F，傢俱照 Airbnb 格局圖畫。手指拖曳可以轉動房子，點你的名字，你的房間會亮橘色。</p>
+    <a class="abnb" href="https://www.airbnb.com.tw/rooms/1070809025468549151" target="_blank" rel="noopener">看房間實際照片 <span>Airbnb ↗</span></a>
+  </header>
+
+  <div class="stage" id="stage" aria-label="三層樓藍圖風格立體房間圖，含傢俱擺設，可拖曳旋轉">
+    <div class="stamp">Bai Bua House | 3D Wireframe | 6BR · 7BA · 3F | Scale 1:100</div>
+    <svg class="gizmo" viewBox="0 0 44 44" fill="none" stroke="#3AA0FF" stroke-width="1" aria-hidden="true"><path d="M22 6 36 14v16L22 38 8 30V14z"/><path d="M8 14l14 8 14-8M22 22v16"/><text x="19" y="18" fill="#3AA0FF" stroke="none" font-size="6" font-family="IBM Plex Mono,monospace">Z</text><text x="11" y="31" fill="#3AA0FF" stroke="none" font-size="6" font-family="IBM Plex Mono,monospace">X</text><text x="29" y="31" fill="#3AA0FF" stroke="none" font-size="6" font-family="IBM Plex Mono,monospace">Y</text></svg>
+    <div class="camera"><div class="fit" id="fit"><div class="scene" id="scene"></div></div></div>
+    <div class="hud">
+      <span class="hint">DRAG ↔ 轉動</span>
+      <button type="button" class="tbtn" id="btnExplode" aria-pressed="true">拆開</button>
+      <button type="button" class="tbtn" id="btnReset">轉回正面</button>
+    </div>
+  </div>
+  <div class="legend" aria-label="圖例">
+    <span><i style="background:rgba(58,160,255,.12)"></i>臥室</span>
+    <span><i style="background:repeating-linear-gradient(45deg,rgba(58,160,255,.5) 0 1px,transparent 1px 4px)"></i>浴室</span>
+    <span><i style="background:repeating-linear-gradient(-45deg,rgba(58,160,255,.4) 0 1px,transparent 1px 5px)"></i>陽台・入口</span>
+    <span><i style="border-color:#FFB547;background:rgba(255,181,71,.25)"></i>你的房間</span>
+  </div>
+
+
+  <section class="finder" aria-labelledby="findH">
+    <h2 id="findH">找我的房間</h2>
+    <div class="chips" id="chips" role="group" aria-label="同行名單"></div>
+    <p class="answer" id="answer" aria-live="polite">點上面的名字，或直接點立體圖上的房間。</p>
+  </section>
+
+  <section class="list" aria-labelledby="listH">
+    <h2 id="listH">全部房間</h2>
+    <div id="list"></div>
+  </section>
+
+  <p class="foot">房號 BR1–BR6 跟 Airbnb 房源上的格局圖一樣。傢俱位置照格局圖畫，是示意圖，現場可能有些不同。雙人床一張睡 2 人、單人床睡 1 人。</p>
+</div>
+
+<script>
+(function(){
+  var ROOMS = {
+    BR1:{beds:"雙人床 ×2", cap:4, people:["張佳欣","蔡佳叡","張勝雄","曾俊皓"]},
+    BR2:{beds:"雙人＋單人", cap:3, people:["杜孟軒","吳宜珉"]},
+    BR3:{beds:"雙人床 ×2", cap:4, people:["高睿澤","潘宇喬","魏均儀","林御涵"]},
+    BR4:{beds:"雙人床 ×2", cap:4, people:["薛嘉沂","謝佳霖","林欣儒","蔡蕙蘭"]},
+    BR5:{beds:"雙人床 ×2", cap:4, people:["小馬哥","呂宗翰"]},
+    BR6:{beds:"雙人＋單人", cap:3, people:["金紹瑾","謝佳純"]}
+  };
+
+  /* Traced from the Airbnb floor plan, in plan pixels. All three floors share one frame:
+     x from the left wall, y from the front of the ground floor; the stairs line up at x≈0, y 542–762. */
+  var K = 0.5;          // plan px -> model px
+  var W = 580, D = 845; // frame size in plan px
+  function stairs(x, y, w, d){ // steps rise toward the back (smaller y)
+    var out = [], n = 8, sd = d / n;
+    for (var i = 0; i < n; i++) out.push({k:"step", x:x, y:y + d - sd*(i+1), w:w, d:sd + 1, h:4 + i*5});
+    return out;
+  }
+  function chairsAlong(x, y, d, n){ var o=[]; for (var i=0;i<n;i++) o.push({k:"chair", x:x, y:y + (i+.5)*d/n - 8, w:14, d:16, h:9}); return o; }
+
+  var FLOORS = [
+    {label:"3F", plate:[0,313,577,449], items:[].concat(
+      [{k:"flat", c:"f-bath", x:0, y:330, w:185, d:85, txt:"衛浴"},
+       {k:"flat", c:"f-hall", x:0, y:415, w:282, d:127},
+       {k:"flat", c:"f-hall", x:185, y:365, w:97, d:50},
+       {k:"fx", x:20, y:378, w:22, d:26, h:7}, {k:"fx", x:120, y:378, w:22, d:26, h:7},
+       {k:"wood", x:3, y:425, w:44, d:66, h:14},
+       {k:"room", id:"BR6", x:57, y:545, w:225, d:217},
+       {k:"bed", o:"up", x:65, y:645, w:80, d:105, h:8},
+       {k:"bed", o:"up", x:188, y:645, w:49, d:105, h:8},
+       {k:"room", id:"BR5", x:282, y:365, w:295, d:187},
+       {k:"bed", o:"side", x:290, y:400, w:106, d:80, h:8},
+       {k:"bed", o:"side", x:465, y:446, w:106, d:80, h:8},
+       {k:"room", id:"BR4", x:282, y:552, w:295, d:210},
+       {k:"bed", o:"up", x:343, y:558, w:82, d:106, h:8},
+       {k:"bed", o:"up", x:463, y:558, w:82, d:106, h:8},
+       {k:"flat", c:"f-balcony", x:430, y:313, w:147, d:52}],
+      stairs(0, 542, 55, 220)
+    )},
+    {label:"2F", plate:[0,313,578,532], items:[].concat(
+      [{k:"room", id:"BR2", x:0, y:313, w:283, d:185},
+       {k:"bed", o:"up", x:8, y:390, w:80, d:104, h:8},
+       {k:"bed", o:"side", x:176, y:442, w:104, d:50, h:8},
+       {k:"flat", c:"f-hall", x:0, y:498, w:283, d:264},
+       {k:"flat", c:"f-rug", x:84, y:568, w:115, d:137},
+       {k:"sofa", x:58, y:582, w:38, d:108, h:13},
+       {k:"ctable", x:138, y:600, w:34, d:62, h:8},
+       {k:"chair", x:112, y:545, w:30, d:30, h:10},
+       {k:"chair", x:116, y:700, w:30, d:30, h:10},
+       {k:"room", id:"BR3", x:283, y:313, w:295, d:240},
+       {k:"bed", o:"up", x:345, y:443, w:81, d:107, h:8},
+       {k:"bed", o:"up", x:465, y:443, w:83, d:107, h:8},
+       {k:"room", id:"BR1", x:283, y:553, w:295, d:209},
+       {k:"bed", o:"up", x:345, y:557, w:81, d:108, h:8},
+       {k:"bed", o:"up", x:465, y:557, w:83, d:108, h:8},
+       {k:"flat", c:"f-balcony", x:0, y:762, w:140, d:83},
+       {k:"flat", c:"f-bath", x:143, y:762, w:140, d:83, txt:"衛浴"},
+       {k:"flat", c:"f-bath", x:286, y:762, w:149, d:83, txt:"衛浴"},
+       {k:"flat", c:"f-balcony", x:438, y:762, w:140, d:83}],
+      stairs(5, 542, 48, 218)
+    )},
+    {label:"1F", plate:[0,0,290,845], items:[].concat(
+      [{k:"flat", c:"f-garden", x:0, y:3, w:83, d:75},
+       {k:"flat", c:"f-balcony", x:88, y:3, w:197, d:77, txt:"入口"},
+       {k:"flat", c:"f-tile", x:0, y:80, w:288, d:682},
+       {k:"wood", x:3, y:82, w:78, d:106, h:22},
+       {k:"flat", c:"f-rug", x:48, y:240, w:100, d:305},
+       {k:"sofa", x:6, y:247, w:38, d:123, h:13},
+       {k:"sofa", x:6, y:397, w:38, d:108, h:13},
+       {k:"ctable", x:82, y:263, w:40, d:72, h:8},
+       {k:"ctable", x:82, y:410, w:40, d:70, h:8},
+       {k:"wood", x:195, y:100, w:56, d:135, h:14},
+       {k:"wood", x:195, y:450, w:56, d:135, h:14},
+       {k:"wood", x:62, y:665, w:36, d:95, h:18},
+       {k:"wood", x:153, y:637, w:130, d:33, h:18},
+       {k:"wood", x:255, y:670, w:28, d:92, h:18},
+       {k:"flat", c:"f-bath", x:0, y:765, w:143, d:80, txt:"衛浴"},
+       {k:"flat", c:"f-bath", x:148, y:765, w:140, d:80, txt:"衛浴"}],
+      chairsAlong(176, 100, 135, 4), chairsAlong(255, 100, 135, 4),
+      chairsAlong(176, 450, 135, 4), chairsAlong(255, 450, 135, 4),
+      stairs(6, 542, 50, 218)
+    )}
+  ];
+  var FLOOR_OF = {};
+  var GAP = {open:245, closed:44};
+  var WALL_H = 13;
+
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+  function px(v){ return (v*K) + "px"; }
+  function box(cls, it, h){
+    var b = document.createElement("div");
+    b.className = "b " + cls;
+    b.style.cssText = "left:"+px(it.x)+";top:"+px(it.y)+";width:"+px(it.w)+";height:"+px(it.d)+";--h:"+h+"px";
+    b.innerHTML = '<i class="fn"></i><i class="fw"></i><i class="fs"></i><i class="fe"></i><i class="t"></i>';
+    return b;
+  }
+
+  var scene = document.getElementById("scene"), stage = document.getElementById("stage");
+  scene.style.left = px(-W/2); scene.style.top = px(-D/2); scene.style.width = px(W); scene.style.height = px(D);
+  var slabs = [];
+  FLOORS.forEach(function(fl){
+    var slab = document.createElement("div"), tags = [];
+    slab.className = "slab";
+    slab.style.width = px(W); slab.style.height = px(D);
+    var p = fl.plate, plate = document.createElement("div");
+    plate.className = "plate";
+    plate.style.cssText = "left:"+px(p[0]-10)+";top:"+px(p[1]-10)+";width:"+px(p[2]+20)+";height:"+px(p[3]+20);
+    slab.appendChild(plate);
+    fl.items.forEach(function(it){
+      var el;
+      if (it.k === "flat"){
+        el = document.createElement("div");
+        el.className = "flat " + it.c;
+        el.style.cssText = "left:"+px(it.x)+";top:"+px(it.y)+";width:"+px(it.w)+";height:"+px(it.d);
+        if (it.txt) el.innerHTML = "<span>"+esc(it.txt)+"</span>";
+      } else if (it.k === "room"){
+        el = box("room", it, WALL_H);
+        el.dataset.room = it.id; FLOOR_OF[it.id] = fl.label;
+        el.addEventListener("click", function(){ if (!moved) pickRoom(it.id); });
+        var t = document.createElement("div"), r = ROOMS[it.id];
+        t.className = "tag"; t.dataset.room = it.id;
+        t.style.left = px(it.x + it.w/2); t.style.top = px(it.y + it.d/2);
+        t.innerHTML = '<div><div class="pill"><b>'+it.id+'</b><small>'+r.people.length+'/'+r.cap+'</small></div><div class="who">'+r.people.map(esc).join("・")+'</div><div class="stem"></div></div>';
+        t.addEventListener("click", function(){ if (!moved) pickRoom(it.id); });
+        tags.push(t);
+      } else {
+        el = box(it.k + (it.o ? " " + it.o : ""), it, it.h || 8);
+      }
+      slab.appendChild(el);
+    });
+    tags.forEach(function(t){ slab.appendChild(t); });
+    var ft = document.createElement("div");
+    ft.className = "tag floor"; ft.style.left = px(p[0] - 70); ft.style.top = px(p[1] + p[3] - 40); ft.style.setProperty("--z","8px");
+    ft.innerHTML = '<div><div class="pill"><b>'+fl.label+'</b></div></div>';
+    slab.appendChild(ft);
+    scene.appendChild(slab);
+    slabs.push(slab);
+  });
+
+  var exploded = true;
+  function stack(){
+    var g = exploded ? GAP.open : GAP.closed, n = slabs.length;
+    slabs.forEach(function(s, i){ s.style.transform = "translateZ(" + ((n-1-i) * g - (n-1) * g / 2) + "px)"; });
+  }
+  stack();
+
+  var fit = document.getElementById("fit");
+  function resize(){
+    var w = stage.clientWidth;
+    var s = Math.min(1.1, Math.max(.56, w / 600));
+    fit.style.setProperty("--s", s);
+    stage.style.setProperty("--stage-h", Math.round(Math.max(440, Math.min(900, 800 * s + 30))) + "px");
+  }
+  window.addEventListener("resize", resize); resize();
+
+  /* drag to rotate */
+  var SPIN0 = -34, TILT0 = 63, spin = SPIN0, tilt = TILT0, moved = false, start = null;
+  function apply(){ scene.style.setProperty("--spin", spin + "deg"); scene.style.setProperty("--tilt", tilt + "deg"); }
+  stage.addEventListener("pointerdown", function(e){
+    if (e.target.closest(".tbtn")) return;
+    start = {x:e.clientX, y:e.clientY, spin:spin, tilt:tilt}; moved = false;
+    try { stage.setPointerCapture(e.pointerId); } catch(_){}
+  });
+  stage.addEventListener("pointermove", function(e){
+    if (!start) return;
+    var dx = e.clientX - start.x, dy = e.clientY - start.y;
+    if (!moved && Math.abs(dx) + Math.abs(dy) < 6) return;
+    moved = true; stage.classList.add("dragging");
+    spin = start.spin + dx * 0.45;
+    tilt = Math.max(20, Math.min(72, start.tilt - dy * 0.3));
+    apply();
+  });
+  function end(){ start = null; stage.classList.remove("dragging"); setTimeout(function(){ moved = false; }, 0); }
+  stage.addEventListener("pointerup", end); stage.addEventListener("pointercancel", end);
+
+  var btnExplode = document.getElementById("btnExplode");
+  btnExplode.addEventListener("click", function(){
+    exploded = !exploded; stack();
+    btnExplode.setAttribute("aria-pressed", String(exploded));
+    btnExplode.textContent = exploded ? "拆開" : "疊起來";
+  });
+  document.getElementById("btnReset").addEventListener("click", function(){ spin = SPIN0; tilt = TILT0; apply(); });
+
+  /* list */
+  var list = document.getElementById("list");
+  [["3F",["BR4","BR5","BR6"]],["2F",["BR1","BR2","BR3"]]].forEach(function(row){
+    var d = document.createElement("div"); d.className = "floor-row";
+    d.innerHTML = '<span>'+row[0]+'</span><div class="cards">' + row[1].map(function(id){
+      var r = ROOMS[id];
+      return '<div class="card" id="card-'+id+'"><div class="card-h"><b>'+id+'</b><span>'+r.people.length+'/'+r.cap+' · '+r.beds+'</span></div><p>' +
+        r.people.map(function(p){ return '<span data-p="'+esc(p)+'">'+esc(p)+'</span>'; }).join("") + '</p></div>';
+    }).join("") + '</div>';
+    list.appendChild(d);
+  });
+
+  /* finder */
+  var everyone = [];
+  Object.keys(ROOMS).sort().forEach(function(id){ ROOMS[id].people.forEach(function(p){ everyone.push({name:p, room:id}); }); });
+  var chips = document.getElementById("chips"), answer = document.getElementById("answer");
+  everyone.forEach(function(x){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = x.name; b.setAttribute("aria-pressed","false");
+    b.addEventListener("click", function(){ pickPerson(b.getAttribute("aria-pressed")==="true" ? null : x.name); });
+    chips.appendChild(b);
+  });
+
+  function highlight(room, person){
+    [].forEach.call(document.querySelectorAll(".room[data-room], .tag[data-room]"), function(b){ b.classList.toggle("hit", b.dataset.room===room); });
+    [].forEach.call(document.querySelectorAll(".card"), function(c){ c.classList.toggle("hit", c.id==="card-"+room); });
+    [].forEach.call(document.querySelectorAll(".card p span"), function(s){ s.classList.toggle("me", !!person && s.getAttribute("data-p")===person); });
+    [].forEach.call(chips.children, function(b){ b.setAttribute("aria-pressed", String(!!person && b.textContent===person)); });
+    stage.classList.toggle("picking", !!room);
+  }
+  function pickPerson(name){
+    var hit = null; everyone.forEach(function(x){ if (x.name===name) hit = x; });
+    try { hit ? localStorage.setItem("bkkRoomMe", hit.name) : localStorage.removeItem("bkkRoomMe"); } catch(e){}
+    if (!hit){ highlight(null, null); answer.textContent = "點上面的名字，或直接點立體圖上的房間。"; return; }
+    highlight(hit.room, hit.name);
+    var mates = ROOMS[hit.room].people.filter(function(p){ return p!==hit.name; });
+    answer.innerHTML = "<b>"+esc(hit.name)+"</b> 住 <b>"+FLOOR_OF[hit.room]+" 的 "+hit.room+"</b>（"+ROOMS[hit.room].beds+"）" + (mates.length ? "，室友：" + mates.map(esc).join("、") : "") + "。";
+  }
+  function pickRoom(id){
+    var r = ROOMS[id];
+    highlight(id, null);
+    answer.innerHTML = "<b>"+FLOOR_OF[id]+" 的 "+id+"</b>（"+r.beds+"）：" + r.people.map(esc).join("、") + (r.cap > r.people.length ? "，還空 "+(r.cap-r.people.length)+" 位" : "") + "。";
+  }
+
+  var saved = null;
+  try { saved = localStorage.getItem("bkkRoomMe"); } catch(e){}
+  if (saved) pickPerson(saved);
+})();
+</script>
+</body>
+</html>
