@@ -944,23 +944,37 @@
     }
     return b;
   }
-  function settle(b){
-    var owe = [], get = [], name;
-    for (name in b){
-      var v = Math.round(b[name]);
-      if (v < -0.5) owe.push({n:name, v:-v});
-      else if (v > 0.5) get.push({n:name, v:v});
+  /* 結算：誰先付就還給誰。每兩個人之間只看「互相欠多少」再相抵，
+     不跨人轉帳（例如只分攤接機訂金的人，只會付給墊接機訂金的人）。 */
+  function settle(){
+    var owe = {}, j, k;   // owe[from][to] = 金額（TWD，未四捨五入）
+    for (j=0;j<expenses.length;j++){
+      var e = expenses[j];
+      var people = (e.participants && e.participants.length) ? e.participants : MEMBERS;
+      var share = twd(e) / people.length;
+      for (k=0;k<people.length;k++){
+        var p = people[k];
+        if (p === e.payer) continue;
+        if (!owe[p]) owe[p] = {};
+        owe[p][e.payer] = (owe[p][e.payer] || 0) + share;
+      }
     }
-    owe.sort(function(x,y){ return y.v - x.v; });
-    get.sort(function(x,y){ return y.v - x.v; });
-    var out = [], i = 0, j = 0;
-    while (i < owe.length && j < get.length){
-      var amt = Math.min(owe[i].v, get[j].v);
-      if (amt > 0) out.push({from:owe[i].n, to:get[j].n, amt:amt});
-      owe[i].v -= amt; get[j].v -= amt;
-      if (owe[i].v <= 0.5) i++;
-      if (get[j].v <= 0.5) j++;
+    var out = [], seen = {}, a, c;
+    for (a in owe){
+      for (c in owe[a]){
+        var key = a < c ? a + "\u0000" + c : c + "\u0000" + a;
+        if (seen[key]) continue;
+        seen[key] = true;
+        var net = owe[a][c] - ((owe[c] && owe[c][a]) || 0);
+        var amt = Math.round(Math.abs(net));
+        if (amt >= 1) out.push(net > 0 ? {from:a, to:c, amt:amt} : {from:c, to:a, amt:amt});
+      }
     }
+    // 依收款人分組，同一個收款人裡金額大的在前
+    var order = {};
+    for (k=0;k<MEMBERS.length;k++) order[MEMBERS[k]] = k;
+    function rank(n){ return order[n] === undefined ? 1e9 : order[n]; }
+    out.sort(function(x,y){ return (rank(x.to) - rank(y.to)) || (y.amt - x.amt) || (rank(x.from) - rank(y.from)); });
     return out;
   }
 
@@ -985,7 +999,7 @@
     $("expList").innerHTML = html;
     $("expEmpty").hidden = expenses.length > 0;
 
-    var b = balances(), moves = settle(b), sHtml = "";
+    var b = balances(), moves = settle(), sHtml = "";
     if (!expenses.length) sHtml = '<div class="s ok">記了帳之後，這裡會算出誰要付誰多少。</div>';
     else if (!moves.length) sHtml = '<div class="s ok">目前打平，沒有人要付給誰。</div>';
     else for (var m=0;m<moves.length;m++){
@@ -995,8 +1009,10 @@
 
     var bHtml = "";
     if (expenses.length){
-      for (var k=0;k<MEMBERS.length;k++){
-        var nm = MEMBERS[k], v = Math.round(b[nm] || 0);
+      var names = MEMBERS.slice();
+      for (var bn in b) if (names.indexOf(bn) < 0 && Math.round(b[bn]) !== 0) names.push(bn);
+      for (var k=0;k<names.length;k++){
+        var nm = names[k], v = Math.round(b[nm] || 0);
         var cls = v > 0 ? "pos" : (v < 0 ? "neg" : "");
         var txt = v > 0 ? "+" + fmt(v).slice(3) : (v < 0 ? "−" + fmt(-v).slice(3) : "0");
         bHtml += '<div class="b">' + esc(nm) + '<span class="' + cls + '">' + txt + '</span></div>';
