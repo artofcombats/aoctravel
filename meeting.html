@@ -94,7 +94,7 @@ h2{font-size:1.25rem;font-weight:700;color:var(--ink);margin:28px 0 8px}
 
 <div class="col">
   <h1><span>AOC 泰國行前會</span><span>你哪時候可以？</span></h1>
-  <div class="byline">11/16（一）– 11/23（一）・10:00 – 22:00</div>
+  <div class="byline">11/16（一）– 11/23（一）・10:00 – 23:00</div>
   <div class="tabs"><button id="tabFill" class="on" type="button">填寫</button><button id="tabRes" type="button">結果<span id="tabCnt"></span></button></div>
 
   <section id="paneFill">
@@ -128,7 +128,7 @@ h2{font-size:1.25rem;font-weight:700;color:var(--ink);margin:28px 0 8px}
   var LS_NAME = "aocMeeting202611.name";
   var DAYS = [], HOURS = [], WD = ["日","一","二","三","四","五","六"];
   for (var d = 16; d <= 23; d++){ var dt = new Date(2026, 10, d); DAYS.push({ id: "11" + d, md: "11/" + d, wd: WD[dt.getDay()], we: dt.getDay() === 0 || dt.getDay() === 6 }); }
-  for (var h = 10; h < 22; h++) HOURS.push(h);
+  for (var h = 10; h < 23; h++) HOURS.push(h);
   function sid(di, h){ return DAYS[di].id + "-" + h; }
   function pad(n){ return (n < 10 ? "0" : "") + n; }
   function slotLabel(id){
