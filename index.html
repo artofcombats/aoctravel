@@ -681,7 +681,7 @@
 
     <section>
       <h2 class="display">行程地圖</h2>
-      <p class="sub">滑鼠滾輪或兩指縮放，按住拖曳移動。手機上全覽只顯示號碼，放大後會出現地名和捷運站名。最小只能縮到全覽，因為地圖只畫了行程附近這一塊。</p>
+      <p class="sub">滑鼠滾輪或兩指縮放，按住拖曳移動。手機上全覽只顯示號碼，放大後會出現地名和捷運站名。咖啡廳和香氛店的圖案也是放大後才出現。最小只能縮到全覽，因為地圖只畫了行程附近這一塊。</p>
       <div class="tm-mapwrap" id="tm-mapwrap">
         <svg class="tm-map" id="tm-map" role="group" aria-label="曼谷行程地點的互動地圖，可拖曳與縮放">
           <g class="tm-world" id="tm-world">
@@ -715,8 +715,8 @@
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d3)"></span>12/3</li>
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d4)"></span>12/4</li>
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d5)"></span>12/5</li>
-        <li><span aria-hidden="true">☕</span>咖啡廳（點一下看資料）</li>
-        <li><svg class="tm-shop tm-lg-shop" width="18" height="20" viewBox="-7 -10 14 18" aria-hidden="true"><rect class="tm-sc" x="-2.6" y="-8.6" width="5.2" height="3" rx=".8"/><rect class="tm-sc" x="-1.4" y="-5.8" width="2.8" height="2.2"/><rect class="tm-sb" x="-5.6" y="-3.8" width="11.2" height="10.6" rx="2.4"/><rect class="tm-sl" x="-3" y=".2" width="6" height="3.2" rx=".6"/></svg>香氛店（點一下看資料）</li>
+        <li><span aria-hidden="true">☕</span>咖啡廳（放大後出現，點一下看資料）</li>
+        <li><svg class="tm-shop tm-lg-shop" width="18" height="20" viewBox="-7 -10 14 18" aria-hidden="true"><rect class="tm-sc" x="-2.6" y="-8.6" width="5.2" height="3" rx=".8"/><rect class="tm-sc" x="-1.4" y="-5.8" width="2.8" height="2.2"/><rect class="tm-sb" x="-5.6" y="-3.8" width="11.2" height="10.6" rx="2.4"/><rect class="tm-sl" x="-3" y=".2" width="6" height="3.2" rx=".6"/></svg>香氛店（放大後出現，點一下看資料）</li>
       </ul>
 
       <div class="tip" style="margin-top:14px">
@@ -1451,7 +1451,7 @@
 </script>
 <script>
 /* ---------- 行程分頁：公共行程表＋互動地圖 ----------
-   來源：Amy 的「曼谷行程地圖」定稿 v30。行程表是鎖定的（不能拖、不存 localStorage）。
+   來源：Amy 的「曼谷行程地圖」定稿 v32。行程表是鎖定的（不能拖、不存 localStorage）。
    跟上面的主程式分開，Firebase 連不上（離線）時這一段照樣能用。
    所有 id / class 都有 tm- 前綴，底圖讀 map-data.json。 */
 (function(){
@@ -1627,6 +1627,9 @@
       for(let i=0;i<n;i++){ const a=i*2*Math.PI/n, x=x0+r*Math.cos(a), y=y0+r*Math.sin(a); if(isClear(x,y,placed)) return [x,y]; } }
     return null;
   }
+  // ☕ 和香水瓶要放大到這個比例才顯示（單位：螢幕 px／地圖單位，手機和桌機是同一個實際比例）；
+  // 全覽時太擠，圖示會被推離實際位置很遠，所以先不顯示。
+  const ICON_K=0.5;
   function apply(){
     clampPan();
     world.setAttribute('transform','translate('+tx.toFixed(2)+' '+ty.toFixed(2)+') scale('+k.toFixed(5)+')');
@@ -1646,7 +1649,10 @@
       const x0=(p.c==='home'?14:11.5)+7;
       for(let d=10; ; d+=20){ const dd=Math.min(d, Math.max(p.lw-10,10)); placed.push({x:p.sx+p.side*(x0+dd), y:p.sy, r:22}); if(dd<d || d>=p.lw-10) break; }
     });
-    CAFES.concat(SHOPS).forEach(function(c){
+    const showIcons=k>=ICON_K;
+    cafesG.style.display=shopsG.style.display=showIcons?'':'none';
+    if(!showIcons) clearCafe();
+    if(showIcons) CAFES.concat(SHOPS).forEach(function(c){
       const x0=c.x*k+tx, y0=c.y*k+ty; let x=x0, y=y0;
       for(let pass=0;pass<2;pass++) placed.forEach(function(q){ const dx=x-q.x, dy=y-q.y, d=Math.hypot(dx,dy); if(d<q.r){ const ux=d>0.01?dx/d:0.7, uy=d>0.01?dy/d:0.7; x=q.x+ux*q.r; y=q.y+uy*q.r; } });
       if(!isClear(x,y,placed)){ const f=freeSpot(x0,y0,placed); if(f){ x=f[0]; y=f[1]; } }
@@ -1842,7 +1848,7 @@
       ul.appendChild(li);
     });
     result.appendChild(ul);
-    result.appendChild(h('small',null,'每天的線只是把當天要去的圓圈連起來，方便看位置，不沿著道路。先後順序以上面的行程表為主。貼紙上的 TOFU 是順便去，不連線。點日期只看那一天，再點一次回到全部。點圓圈看地點資料，☕ 是咖啡廳，香水瓶是香氛店。'));
+    result.appendChild(h('small',null,'每天的線只是把當天要去的圓圈連起來，方便看位置，不沿著道路。先後順序以上面的行程表為主。貼紙上的 TOFU 是順便去，不連線。點日期只看那一天，再點一次回到全部。點圓圈看地點資料。放大地圖會出現 ☕ 咖啡廳和香水瓶（香氛店）。'));
   }
   function showDay(d, zoom){
     clearCafe();
@@ -1862,7 +1868,7 @@
   }
   function focusPlace(n){
     setDay(null); sel=n; sync();
-    const p=byN(n); size(); k=clampK(kFit*3); tx=W/2-p.x*k; ty=H/2-p.y*k; draw(); toMap();
+    const p=byN(n); size(); k=clampK(Math.max(kFit*3, ICON_K*1.05)); tx=W/2-p.x*k; ty=H/2-p.y*k; draw(); toMap();   // 至少放大到圖示會出現的比例
   }
   // ---- place details（原本「地址簿」的資料併在這裡）：點圓圈或行程表格子，顯示在地圖下方 ----
   const GQ='https://www.google.com/maps/search/?api=1&query=';
