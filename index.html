@@ -378,6 +378,7 @@
   .tm-sch td{border:0;border-radius:8px;padding:8px 6px;height:76px;text-align:center;vertical-align:middle;line-height:1.3}
   .tm-sch td b{display:block;font-weight:700}
   .tm-sch td small{display:block;font-size:12px;opacity:.85}
+  .tm-sch td small.tm-tmx{font-size:13px;font-weight:700;opacity:1}   /* 時間：粗體、不透明 */
   .tm-sch td.tm-c-train{background:var(--accent);color:var(--on-accent)}
   .tm-sch td.tm-c-go,.tm-sch td.tm-c-plain{background:var(--panel-2);color:var(--ink)}
   .tm-sch td.tm-c-free{background:var(--gold-soft);color:var(--ink-2)}
@@ -388,8 +389,9 @@
   .tm-sch .tm-place{display:block;width:100%;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
   .tm-sch .tm-place:hover b{text-decoration:underline}
   .tm-sch .tm-c-split .tm-place{background:var(--panel-2);color:var(--ink);border-radius:8px;padding:9px 4px}
-  .tm-sch .tm-stk{display:inline-block;width:auto;margin-top:5px;background:var(--tm-sticker);color:var(--tm-on-sticker);font-size:12px;font-weight:700;line-height:1.25;padding:3px 7px;border-radius:4px;transform:rotate(-2deg)}
-  .tm-sch td.tm-c-split > .tm-stk{position:absolute;top:-6px;right:-4px;margin:0;width:auto;background:var(--tm-sticker);color:var(--tm-on-sticker);padding:3px 7px;border-radius:4px;transform:rotate(4deg)}
+  .tm-sch .tm-stk{display:inline-block;width:auto;margin-top:5px;background:var(--tm-sticker);color:var(--tm-on-sticker);font-size:12px;font-weight:700;line-height:1.25;padding:3px 7px;border-radius:4px;transform:rotate(-2deg);word-break:keep-all}
+  .tm-sch .tm-c-split .tm-stack > .tm-place:first-child{padding-top:17px}   /* 上方留空間給右上角的貼紙，字不被蓋住 */
+  .tm-sch td.tm-c-split > .tm-stk{position:absolute;top:-10px;right:-5px;margin:0;width:auto;background:var(--tm-sticker);color:var(--tm-on-sticker);padding:3px 7px;border-radius:4px;transform:rotate(4deg)}
   .tm-late b,.tm-late small{display:inline}
   .tm-late small{margin-left:8px}
 
@@ -407,8 +409,6 @@
   .tm-maj{stroke:var(--tm-rd-maj);stroke-width:3.2;vector-effect:non-scaling-stroke}
   .tm-rail{stroke:var(--tm-rail);stroke-width:2;stroke-dasharray:7 4;vector-effect:non-scaling-stroke}
   .tm-st{stroke:var(--tm-rail);stroke-width:6;vector-effect:non-scaling-stroke}
-  .tm-route-halo{stroke:var(--tm-land);stroke-width:10;vector-effect:non-scaling-stroke}
-  .tm-route{stroke:var(--ink);stroke-width:5.5;vector-effect:non-scaling-stroke}
   .tm-dayhalo{stroke:var(--tm-land);stroke-width:7;vector-effect:non-scaling-stroke;transition:opacity .15s}
   .tm-dayline{stroke-width:4;vector-effect:non-scaling-stroke;transition:opacity .15s}
   .tm-dayline.tm-dim{opacity:.15} .tm-dayhalo.tm-dim{opacity:0}
@@ -453,8 +453,6 @@
   .tm-kv .thai{grid-column:1 / -1}
   .tm-kv .thai-t{white-space:pre-line}
   .tm-acts{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
-  .tm-btn{font-size:13px;font-weight:700;padding:8px 13px;border-radius:8px;background:var(--panel-2);border:1px solid var(--line-strong);color:var(--ink-2);cursor:pointer}
-  .tm-btn:hover{border-color:var(--accent);color:var(--accent)}
   .tm-dot{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:12px;font-weight:700;line-height:1;border:2.5px solid var(--ink);flex:none;font-variant-numeric:tabular-nums;background:var(--panel);color:var(--ink);vertical-align:middle}
   .tm-dot.tm-home{background:var(--tm-home);border-color:var(--tm-home);color:var(--tm-on-home)}
   .tm-dot.tm-gym{background:var(--tm-gym);border-color:var(--tm-gym);color:var(--tm-on-gym)}
@@ -469,12 +467,7 @@
   .tm-ln{display:inline-block;width:26px;height:0;border-top:3px solid var(--tm-rd-maj);flex:none}
   .tm-ln.tm-ln-rail{border-top:2px dashed var(--tm-rail)}
   .tm-ln.tm-ln-water{border-top:5px solid var(--tm-water)}
-  .tm-ln.tm-ln-route{border-top:5px solid var(--ink)}
   .tm-ln.tm-ln-day{border-top-width:5px;border-top-style:solid}
-
-  /* 任選兩點 */
-  .tm-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .tm-pick .tm-pickbtns{grid-column:1 / -1;display:flex;gap:8px}
 
   /* ---------- bottom bar ---------- */
   .tabbar{
@@ -684,7 +677,7 @@
 
     <section>
       <h2 class="display">行程地圖</h2>
-      <p class="sub">滑鼠滾輪或兩指縮放，按住拖曳移動。放大後會出現捷運站名。最小只能縮到全覽，因為地圖只畫了行程附近這一塊。</p>
+      <p class="sub">滑鼠滾輪或兩指縮放，按住拖曳移動。手機上全覽只顯示號碼，放大後會出現地名和捷運站名。最小只能縮到全覽，因為地圖只畫了行程附近這一塊。</p>
       <div class="tm-mapwrap" id="tm-mapwrap">
         <svg class="tm-map" id="tm-map" role="group" aria-label="曼谷行程地點的互動地圖，可拖曳與縮放">
           <g class="tm-world" id="tm-world">
@@ -692,7 +685,6 @@
             <path id="tm-L-secondary" class="tm-sec"/><path id="tm-L-primary" class="tm-pri"/><path id="tm-L-major" class="tm-maj"/>
             <path id="tm-L-rail" class="tm-rail"/><path id="tm-L-st" class="tm-st"/>
             <g id="tm-dayRoutes"></g>
-            <path id="tm-routeHalo" class="tm-route-halo"/><path id="tm-route" class="tm-route"/>
           </g>
           <g id="tm-areas"></g><g id="tm-stl"></g><g id="tm-cafes"></g><g id="tm-pins"></g>
         </svg>
@@ -719,24 +711,11 @@
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d3)"></span>12/3</li>
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d4)"></span>12/4</li>
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d5)"></span>12/5</li>
-        <li><span class="tm-ln tm-ln-route"></span>任選兩點的路線</li>
         <li><span aria-hidden="true">☕</span>咖啡廳（點一下看資料）</li>
       </ul>
 
       <div class="tip" style="margin-top:14px">
         <p><b>泰文是照英文地址轉寫的。</b>出發前建議跟拳館再核對一次，尤其 F.A. Group 的門牌網路上有 270 和 166 兩種寫法。</p>
-      </div>
-    </section>
-
-    <section>
-      <h2 class="display">任選兩個地點看開車路線</h2>
-      <div class="tm-pick" style="margin-top:10px">
-        <label class="f"><span>從</span><select id="tm-from"><option value="">選一個地點</option></select></label>
-        <label class="f"><span>到</span><select id="tm-to"><option value="">選一個地點</option></select></label>
-        <div class="tm-pickbtns">
-          <button type="button" class="tm-btn" id="tm-swap">對調</button>
-          <button type="button" class="tm-btn" id="tm-clear">清除</button>
-        </div>
       </div>
     </section>
 
@@ -1467,9 +1446,9 @@
 </script>
 <script>
 /* ---------- 行程分頁：公共行程表＋互動地圖 ----------
-   來源：Amy 的「曼谷行程地圖」定稿 v24。行程表是鎖定的（不能拖、不存 localStorage）。
+   來源：Amy 的「曼谷行程地圖」定稿 v27。行程表是鎖定的（不能拖、不存 localStorage）。
    跟上面的主程式分開，Firebase 連不上（離線）時這一段照樣能用。
-   所有 id / class 都有 tm- 前綴，底圖讀 map-data.json、兩點路線讀 routes.json。 */
+   所有 id / class 都有 tm- 前綴，底圖讀 map-data.json。 */
 (function(){
   if(!document.getElementById('tm-map')) return;
   const LON0=100.460, LATMAX=13.850, UX=10812.3, UY=11057.4;
@@ -1499,7 +1478,7 @@
   const el=function(tag,attrs,text){const e=document.createElementNS(NS,tag); for(const a in attrs) e.setAttribute(a,attrs[a]); if(text!=null) e.textContent=text; return e;};
   function h(tag,cls,text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 
-  let k=1, tx=0, ty=0, kFit=1, W=0, H=0, routes=null, stations=[], sel=[null,null], raf=0;
+  let k=1, tx=0, ty=0, kFit=1, W=0, H=0, stations=[], sel=null, raf=0;   // sel＝目前選到的地點號碼
   let dragMoved=false;
 
   // ---- pins, area labels (screen space, constant size) ----
@@ -1551,7 +1530,7 @@
   }
   function clearCafe(){ CAFES.forEach(function(c){ c.g.classList.remove('tm-sel'); }); }
   function showCafe(c){
-    setDay(null); sel=[null,null]; sync(false);
+    setDay(null); sel=null; sync();
     c.g.classList.add('tm-sel');
     const near=P.map(function(p){ return {p:p, d:hav(c,p)}; }).sort(function(a,b){ return a.d-b.d; });
     const others=near.filter(function(x){ return x.p.n!==1; }).slice(0,2);
@@ -1657,51 +1636,32 @@
   window.addEventListener('hashchange',function(){ requestAnimationFrame(onResize); });   // 切分頁的保險（沒有 ResizeObserver 的瀏覽器）
   document.addEventListener('visibilitychange',function(){ if(!document.hidden) onResize(); });
 
-  // ---- route picking ----
-  const selFrom=byId('from'), selTo=byId('to'), result=byId('result');
-  P.forEach(function(p){ [selFrom,selTo].forEach(function(s){ const o=document.createElement('option'); o.value=p.n; o.textContent=p.n+'　'+p.name; s.appendChild(o); }); });
+  // ---- selecting a place ----
+  const result=byId('result');
   function pick(n){
     setDay(null);
-    sel=(sel[0]===n&&sel[1]==null)?[null,null]:[n,null];
-    sync(false);
+    sel=(sel===n)?null:n;
+    sync();
   }
   function hav(a,b){ const R=6371, r=Math.PI/180, p1=a.lat*r, p2=b.lat*r; const d=Math.pow(Math.sin((p2-p1)/2),2)+Math.cos(p1)*Math.cos(p2)*Math.pow(Math.sin((b.lon-a.lon)*r/2),2); return 2*R*Math.asin(Math.sqrt(d)); }
-  function sync(zoom){
+  function sync(){
     clearCafe();
-    selFrom.value=sel[0]==null?'':sel[0]; selTo.value=sel[1]==null?'':sel[1];
-    P.forEach(function(p){p.g.classList.toggle('tm-sel', p.n===sel[0]||p.n===sel[1]);});
-    const rp=byId('route'), rh=byId('routeHalo');
-    if(sel[0]!=null && sel[1]!=null && sel[0]!==sel[1]){
-      const a=byN(sel[0]), b=byN(sel[1]); const key=Math.min(a.n,b.n)+'-'+Math.max(a.n,b.n); const r=routes&&routes[key];
-      const gm='https://www.google.com/maps/dir/?api=1&origin='+a.lat+','+a.lon+'&destination='+b.lat+','+b.lon+'&travelmode=driving';
-      result.textContent='';
-      result.appendChild(h('strong',null,a.name+' → '+b.name));
-      result.appendChild(h('small',null,r? '黑線是開車會走的路。距離和時間請打開 Google 地圖看當下的路況。' : '路線資料還沒載入。'));
-      result.appendChild(mapLink(gm,'在 Google 地圖看路線'));
-      if(r){ rp.setAttribute('d',r.p); rh.setAttribute('d',r.p);
-        if(zoom) fitPath(r.p, Math.min(W,H)<420?60:96); }
-    } else {
-      rp.removeAttribute('d'); rh.removeAttribute('d');
-      if(sel[0]!=null) showPlaceInfo(byN(sel[0]));
-      else showOverview();
-    }
+    P.forEach(function(p){p.g.classList.toggle('tm-sel', p.n===sel);});
+    if(sel!=null) showPlaceInfo(byN(sel));
+    else showOverview();
     drawDays();
   }
-  selFrom.addEventListener('change',function(){ setDay(null); sel[0]=selFrom.value?+selFrom.value:null; if(sel[0]==null) sel[1]=null; sync(true); toMap(); });
-  selTo.addEventListener('change',function(){ setDay(null); sel[1]=selTo.value?+selTo.value:null; if(sel[0]==null && sel[1]!=null){ sel=[sel[1],null]; } sync(true); toMap(); });
-  byId('swap').addEventListener('click',function(){ if(sel[0]!=null&&sel[1]!=null){ sel=[sel[1],sel[0]]; sync(false);} });
-  byId('clear').addEventListener('click',function(){ setDay(null); sel=[null,null]; sync(false); fitAll(); });
 
-  // ---- schedule (locked): day routes, place focus ----
+  // ---- schedule (locked): day lines, place focus ----
   const WK={'12/1':'二','12/2':'三','12/3':'四','12/4':'五','12/5':'六'};
   const SLOTS=['早','中','晚'];
   const BLOCKS={
     T1:{k:'train'}, T2:{k:'train'}, T3:{k:'train'},
     OLD:{k:'go', parts:[{p:6,b:'老城區',s:'嵩越路'}]},
-    ICON:{k:'go', parts:[{p:7,b:'ICON SIAM',s:'百貨'}], stk:{p:12,t:'郵輪晚餐＋無人機秀'}},
-    PARTY:{k:'go', parts:[{p:9,b:'聯合尾牙',s:'晚上 7 點'}]},
+    ICON:{k:'go', parts:[{p:7,b:'ICON SIAM',s:'百貨'}], stk:{p:12,t:'郵輪晚餐 7PM＋無人機秀'}},
+    PARTY:{k:'go', parts:[{p:9,b:'聯合尾牙',t:'7PM'}]},
     MALL:{k:'split', parts:[{p:8,b:'中央百貨'},{p:11,b:'卡丁車'}], stk:{p:13,t:'TOFU',link:false}},
-    RWS:{k:'go', parts:[{p:10,b:'RWS 拳賽',s:'看完去夜市'}]},
+    RWS:{k:'go', parts:[{p:10,b:'RWS 拳賽',t:'7PM',s:'看完去夜市'}]},
     JJ:{k:'go', parts:[{p:5,b:'恰圖恰市集'}]},
     F1:{k:'free'}, F2:{k:'free'}, F3:{k:'free'},
     SHOP:{k:'plain', b:'採買伴手禮', s:'帶回台灣的東西'}
@@ -1711,17 +1671,23 @@
     '12/4-早':'T3','12/4-中':'MALL','12/4-晚':'RWS','12/5-早':'F3','12/5-中':'JJ','12/5-晚':'SHOP'};
   const gymOf={T1:'3',T2:'4',T3:'2'};   // 12/2 Superbon、12/3 WKO、12/4 F.A. Group
   const GYMS=[[2,'F.A. Group'],[3,'Superbon'],[4,'WKO']];
+  const GYMTIME={2:'7AM', 3:'8AM'};   // WKO 還沒有時間，不顯示
   let dayOn=null;
 
   const schBody=byId('schBody');
   const dayBtns=Array.prototype.slice.call(document.querySelectorAll('button.tm-dayb'));
-  function placeBtn(part){ const b=h('button','tm-place'); b.type='button'; b.setAttribute('data-p',part.p); b.appendChild(h('b',null,part.b)); if(part.s) b.appendChild(h('small',null,part.s)); return b; }
-  function stkBtn(stk){ const sb=h('button','tm-stk tm-place',stk.t); sb.type='button'; sb.setAttribute('data-p',stk.p); return sb; }
+  function placeBtn(part){ const b=h('button','tm-place'); b.type='button'; b.setAttribute('data-p',part.p); b.appendChild(h('b',null,part.b)); if(part.t) b.appendChild(h('small','tm-tmx',part.t)); if(part.s) b.appendChild(h('small',null,part.s)); return b; }
+  // 貼紙文字只在空白和「＋」後面換行，不把「無人機秀」這種詞拆開
+  function stkBtn(stk){
+    const sb=h('button','tm-stk tm-place'); sb.type='button'; sb.setAttribute('data-p',stk.p);
+    stk.t.split('＋').forEach(function(seg,i,arr){ sb.appendChild(document.createTextNode(seg+(i<arr.length-1?'＋':''))); if(i<arr.length-1) sb.appendChild(document.createElement('wbr')); });
+    return sb;
+  }
   function gymName(id){ const g=+gymOf[id]; for(let i=0;i<GYMS.length;i++) if(GYMS[i][0]===g) return GYMS[i][1]; return ''; }
   function cellTd(cell){
     const id=layout[cell], B=BLOCKS[id]; const td=h('td','tm-cell tm-c-'+B.k); td.setAttribute('data-cell',cell);
     if(B.k==='train'){
-      td.appendChild(placeBtn({p:+gymOf[id], b:'拳館訓練', s:gymName(id)}));
+      td.appendChild(placeBtn({p:+gymOf[id], b:'拳館訓練', t:GYMTIME[+gymOf[id]], s:gymName(id)}));
     } else if(B.k==='go'){
       td.appendChild(placeBtn(B.parts[0]));
       if(B.stk) td.appendChild(stkBtn(B.stk));
@@ -1745,13 +1711,7 @@
     r4.appendChild(lt); const rt=h('td','tm-c-rest'); rt.appendChild(h('b',null,'休息')); rt.appendChild(h('b',null,'整理行李')); r4.appendChild(rt); schBody.appendChild(r4);
   }
 
-  // 把畫面帶到地圖：地圖已經被捲到畫面上方時（例如在下面的「任選兩點」選單操作），捲回地圖頂端；
-  // 其他情況只要讓地圖下方的資訊區塊露出來。
-  function toMap(){
-    const mw=byId('mapwrap');
-    if(mw.getBoundingClientRect().top<0) mw.scrollIntoView({behavior:'smooth',block:'start'});
-    else result.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
+  function toMap(){ result.scrollIntoView({behavior:'smooth',block:'nearest'}); }
   function setDay(d){ dayOn=d; dayBtns.forEach(function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-day')===d?'true':'false'); }); }
   function daySeq(d){
     const s=[];
@@ -1786,17 +1746,16 @@
     if(seq.length>1) dstr='M'+seq.map(function(n){ const p=byN(n); return p.x.toFixed(1)+','+p.y.toFixed(1); }).join('L');
     return {seq:seq, d:dstr, legs:legs};
   }
-  // every day's line is always on the map; picking a day (or two places) fades the others
+  // every day's line is always on the map; picking a day fades the others
   function dayShown(d){ return d!=='12/1'; }
   function drawDays(){
-    const pair=sel[0]!=null&&sel[1]!=null;
     const s1=dayShown('12/1');
     dayBtns.forEach(function(b){ if(b.getAttribute('data-day')==='12/1') b.classList.toggle('tm-noline', !s1); });
     byId('lg-d1').style.display=s1?'':'none';
     DAYS.forEach(function(d){
       const r=dayRoute(d), e=dayEls[d];
       if(r.d){ e.h.setAttribute('d',r.d); e.l.setAttribute('d',r.d); } else { e.h.removeAttribute('d'); e.l.removeAttribute('d'); }
-      const dim=pair||(dayOn!=null&&dayOn!==d);
+      const dim=dayOn!=null&&dayOn!==d;
       e.h.classList.toggle('tm-dim',dim); e.l.classList.toggle('tm-dim',dim);
     });
     offsetDays();
@@ -1822,10 +1781,9 @@
   }
   function showDay(d, zoom){
     clearCafe();
-    setDay(d); sel=[null,null]; selFrom.value=''; selTo.value='';
+    setDay(d); sel=null;
     const R=dayRoute(d), seq=R.seq, dstr=R.d, legs=R.legs;
     P.forEach(function(p){ p.g.classList.toggle('tm-sel', seq.length>1 && seq.indexOf(p.n)>=0); });
-    byId('route').removeAttribute('d'); byId('routeHalo').removeAttribute('d');
     drawDays();
     result.textContent='';
     const st=h('strong');
@@ -1838,7 +1796,7 @@
     if(zoom && dstr) fitPath(dstr, Math.min(W,H)<420?60:96);
   }
   function focusPlace(n){
-    setDay(null); sel=[n,null]; sync(false);
+    setDay(null); sel=n; sync();
     const p=byN(n); size(); k=clampK(kFit*3); tx=W/2-p.x*k; ty=H/2-p.y*k; draw(); toMap();
   }
   // ---- place details（原本「地址簿」的資料併在這裡）：點圓圈或行程表格子，顯示在地圖下方 ----
@@ -1847,15 +1805,15 @@
     1:{addr:'677/38 Soi Ladprao 5/1, Chompol, Bangkok 10900', thai:'บ้านเลขที่ 677/38\nซอยลาดพร้าว 5/1 แขวงจอมพล\nกรุงเทพฯ 10900',
        note:'Google 地圖搜尋「Bai bua house」（Airbnb 上叫 SONGPEEP house）。開進 Soi Ladprao 5/1 到巷底，右手邊的綠色房子。', link:GQ+'Bai+bua+house+Soi+Ladprao+5%2F1+Bangkok'},
     2:{addr:'270 / 166 Vibhavadi Rangsit Rd, Chom Phon, Chatuchak, Bangkok 10900', thai:'เลขที่ 270/166 ถนนวิภาวดีรังสิต\nแขวงจอมพล เขตจตุจักร\nกรุงเทพฯ 10900',
-       walk:'離民宿約 1 公里・約 15 分鐘', note:'門牌在網路上有 270 和 166 兩種寫法，叫車時直接搜店名最準。', link:GQ+'F.A.+Group+Muay+Thai+Vibhavadi+Rangsit+Bangkok'},
-    3:{addr:'109（2 樓）Sukhumvit 24, Bangkok', thai:'109 ชั้น 2, สุขุมวิท 24', link:GQ+'Superbon+Muaythai+Academy+Sukhumvit+24+Bangkok'},
+       time:'7AM', walk:'離民宿約 1 公里・約 15 分鐘', note:'門牌在網路上有 270 和 166 兩種寫法，叫車時直接搜店名最準。', link:GQ+'F.A.+Group+Muay+Thai+Vibhavadi+Rangsit+Bangkok'},
+    3:{time:'8AM', addr:'109（2 樓）Sukhumvit 24, Bangkok', thai:'109 ชั้น 2, สุขุมวิท 24', link:GQ+'Superbon+Muaythai+Academy+Sukhumvit+24+Bangkok'},
     4:{addr:'On Nut 65 巷 Yaek 11', note:'IG：wko.muaythaicamp。地圖連結是直接定位到座標。', link:GQ+'13.727968,100.677633'},
     5:{link:GQ+'Chatuchak+Weekend+Market+Bangkok'},
     6:{link:GQ+'Song+Wat+Road+Bangkok'},
-    7:{note:'郵輪晚餐在這裡的碼頭上下船。', link:GQ+'ICONSIAM+Bangkok'},
+    7:{note:'郵輪晚餐 7PM，在這裡的碼頭上下船。', link:GQ+'ICONSIAM+Bangkok'},
     8:{link:GQ+'centralwOrld+Bangkok'},
-    9:{note:'聯合尾牙，晚上 7 點開始。', link:'https://maps.app.goo.gl/M7rR4vYtYpUDUDPy7'},
-    10:{note:'RWS 拳賽，看完去夜市。', link:GQ+'Rajadamnern+Muay+Thai+Stadium+Bangkok'},
+    9:{time:'7PM', note:'聯合尾牙。', link:'https://maps.app.goo.gl/M7rR4vYtYpUDUDPy7'},
+    10:{time:'7PM', note:'RWS 拳賽，看完去夜市。', link:GQ+'Rajadamnern+Muay+Thai+Stadium+Bangkok'},
     11:{addr:'1087/170 Phetchaburi Rd', note:'離中央世界約 5 分鐘。', link:'https://maps.app.goo.gl/XQFZ82WLd4vpP2iaA'},
     12:{note:'12/2 的無人機秀 19:50 開始。', link:GQ+'Wat+Arun+Ratchawararam+Ratchawaramahawihan'},
     13:{note:'去中央世界那天順便去。地圖上的位置是估的，可能差一百多公尺，以 Google 地圖為準。', link:'https://maps.app.goo.gl/hGKP5yXh7SeypFEy8'}
@@ -1879,7 +1837,7 @@
     st.appendChild(document.createTextNode(p.name)); result.appendChild(st);
     const kv=kvBox();
     kv.row('類型', p.t);
-    kv.row('哪一天去', placeDays(p.n).join('、'));
+    kv.row('哪一天去', placeDays(p.n).join('、')+(I.time?'・'+I.time:''));
     kv.row('地址', I.addr);
     if(I.thai) kv.appendChild(thaiBox(I.thai));
     kv.row('走路', I.walk);
@@ -1887,14 +1845,13 @@
     result.appendChild(kv);
     const acts=h('div','tm-acts');
     acts.appendChild(mapLink(I.link||(GQ+p.lat+','+p.lon),'在 Google 地圖打開'));
-    if(p.n!==1){ const rb=h('button','tm-btn','畫出民宿到這裡的路線'); rb.type='button'; rb.addEventListener('click',function(){ setDay(null); sel=[1,p.n]; sync(true); }); acts.appendChild(rb); }
     result.appendChild(acts);
   }
-  function reshow(){ if(dayOn) showDay(dayOn,true); else if(sel[0]!=null&&sel[1]!=null) sync(true); }
+  function reshow(){ if(dayOn) showDay(dayOn,true); }
 
   dayBtns.forEach(function(b){ b.addEventListener('click',function(){
     const d=b.getAttribute('data-day');
-    if(dayOn===d){ setDay(null); sel=[null,null]; sync(false); userMoved=false; fitAll(); }
+    if(dayOn===d){ setDay(null); sel=null; sync(); userMoved=false; fitAll(); }
     else showDay(d, true);
     toMap();
   }); });
@@ -1905,16 +1862,15 @@
   renderSched();
 
   // ---- load data ----
-  fitAll(); sync(false);
-  const timer=setTimeout(function(){ byId('loading').textContent='地圖底圖載入比較久，地點和選單可以先用。'; },10000);
-  Promise.all([fetch('map-data.json').then(function(r){return r.json();}), fetch('routes.json').then(function(r){return r.json();})]).then(function(res){
+  fitAll(); sync();
+  const timer=setTimeout(function(){ byId('loading').textContent='地圖底圖載入比較久，地點可以先點。'; },10000);
+  fetch('map-data.json').then(function(r){return r.json();}).then(function(m){
     clearTimeout(timer);
-    const m=res[0];
     for(const key in m.layers){ const e=byId('L-'+key); if(e) e.setAttribute('d',m.layers[key]); }
     stations=m.stations||[];
     byId('L-st').setAttribute('d',stations.map(function(s){return 'M'+s[0]+','+s[1]+'h0';}).join(''));
     stEls=stations.map(function(s){ const t=el('text',{class:'tm-stl'},s[2]); t.style.display='none'; stlG.appendChild(t); return {t:t,x:s[0],y:s[1]}; });
-    routes=res[1]; if(dayOn) showDay(dayOn,false); else sync(false); drawDays(); byId('loading').hidden=true; draw();
+    if(dayOn) showDay(dayOn,false); else sync(); drawDays(); byId('loading').hidden=true; draw();
   }).catch(function(){ clearTimeout(timer); byId('loading').textContent='地圖底圖載入失敗，請重新整理頁面。'; });
 })();
 </script>
