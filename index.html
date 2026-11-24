@@ -344,19 +344,19 @@
   .tm{
     --tm-land:#F8F6F3; --tm-water:#BCD9EA; --tm-rd-maj:#B3A79E; --tm-rd-pri:#D0C8C1; --tm-rd-sec:#E4DFDA; --tm-rail:#8D80BD;
     --tm-sel:#1F6FEB; --tm-home:#5FC3EA; --tm-on-home:#06283A; --tm-gym:#E03131; --tm-on-gym:#FFFFFF;
-    --tm-sticker:#FFD84D; --tm-on-sticker:#3A2A00;
+    --tm-sticker:#FFD84D; --tm-on-sticker:#3A2A00; --tm-scent:#F6C9D8; --tm-scent-ink:#8A2F55;
     --tm-d1:#0C8599; --tm-d2:#E8590C; --tm-d3:#2F9E44; --tm-d4:#C2255C; --tm-d5:#1C7ED6;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]) .tm{
       --tm-land:#1A1A19; --tm-water:#20394A; --tm-rd-maj:#6F665F; --tm-rd-pri:#4B4642; --tm-rd-sec:#34312E; --tm-rail:#9E93CF;
-      --tm-sel:#6EA8FF; --tm-gym:#FF6B6B; --tm-on-gym:#2B0606;
+      --tm-sel:#6EA8FF; --tm-gym:#FF6B6B; --tm-on-gym:#2B0606; --tm-scent:#6B2F47; --tm-scent-ink:#F7B3CA;
       --tm-d1:#3BC9DB; --tm-d2:#FF922B; --tm-d3:#51CF66; --tm-d4:#F06595; --tm-d5:#4DABF7;
     }
   }
   :root[data-theme="dark"] .tm{
     --tm-land:#1A1A19; --tm-water:#20394A; --tm-rd-maj:#6F665F; --tm-rd-pri:#4B4642; --tm-rd-sec:#34312E; --tm-rail:#9E93CF;
-    --tm-sel:#6EA8FF; --tm-gym:#FF6B6B; --tm-on-gym:#2B0606;
+    --tm-sel:#6EA8FF; --tm-gym:#FF6B6B; --tm-on-gym:#2B0606; --tm-scent:#6B2F47; --tm-scent-ink:#F7B3CA;
     --tm-d1:#3BC9DB; --tm-d2:#FF922B; --tm-d3:#51CF66; --tm-d4:#F06595; --tm-d5:#4DABF7;
   }
 
@@ -431,6 +431,10 @@
   .tm-cafe .tm-ring{fill:none;stroke:var(--tm-sel);stroke-width:3;opacity:0}
   .tm-cafe.tm-sel .tm-ring,.tm-cafe:focus-visible .tm-ring{opacity:1}
   .tm-cafe:focus{outline:none}
+  .tm-shop .tm-sb{fill:var(--tm-scent);stroke:var(--tm-scent-ink);stroke-width:1.3}   /* 香氛店：香水瓶瓶身 */
+  .tm-shop .tm-sc{fill:var(--tm-scent-ink)}
+  .tm-shop .tm-sl{fill:var(--panel);stroke:var(--tm-scent-ink);stroke-width:.8}
+  .tm-lg-shop{flex:none}
   .tm-ctrl{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
   .tm-ctrl button{font:inherit;font-size:18px;line-height:1;width:42px;height:42px;padding:0;border-radius:9px;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);cursor:pointer}
   .tm-ctrl button.tm-txt{font-size:12.5px;font-weight:700}
@@ -686,7 +690,7 @@
             <path id="tm-L-rail" class="tm-rail"/><path id="tm-L-st" class="tm-st"/>
             <g id="tm-dayRoutes"></g>
           </g>
-          <g id="tm-areas"></g><g id="tm-stl"></g><g id="tm-cafes"></g><g id="tm-pins"></g>
+          <g id="tm-areas"></g><g id="tm-stl"></g><g id="tm-cafes"></g><g id="tm-shops"></g><g id="tm-pins"></g>
         </svg>
         <div class="tm-ctrl">
           <button type="button" id="tm-zin" aria-label="放大">＋</button>
@@ -712,6 +716,7 @@
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d4)"></span>12/4</li>
         <li><span class="tm-ln tm-ln-day" style="border-top-color:var(--tm-d5)"></span>12/5</li>
         <li><span aria-hidden="true">☕</span>咖啡廳（點一下看資料）</li>
+        <li><svg class="tm-shop tm-lg-shop" width="18" height="20" viewBox="-7 -10 14 18" aria-hidden="true"><rect class="tm-sc" x="-2.6" y="-8.6" width="5.2" height="3" rx=".8"/><rect class="tm-sc" x="-1.4" y="-5.8" width="2.8" height="2.2"/><rect class="tm-sb" x="-5.6" y="-3.8" width="11.2" height="10.6" rx="2.4"/><rect class="tm-sl" x="-3" y=".2" width="6" height="3.2" rx=".6"/></svg>香氛店（點一下看資料）</li>
       </ul>
 
       <div class="tip" style="margin-top:14px">
@@ -1446,7 +1451,7 @@
 </script>
 <script>
 /* ---------- 行程分頁：公共行程表＋互動地圖 ----------
-   來源：Amy 的「曼谷行程地圖」定稿 v27。行程表是鎖定的（不能拖、不存 localStorage）。
+   來源：Amy 的「曼谷行程地圖」定稿 v30。行程表是鎖定的（不能拖、不存 localStorage）。
    跟上面的主程式分開，Firebase 連不上（離線）時這一段照樣能用。
    所有 id / class 都有 tm- 前綴，底圖讀 map-data.json。 */
 (function(){
@@ -1488,8 +1493,9 @@
     g.appendChild(el('circle',{class:'tm-ring', r:r+5}));
     g.appendChild(el('circle',{class:'tm-dot', r:r}));
     g.appendChild(el('text',{class:'tm-num', y:4.6}, p.n));
-    g.appendChild(p.side===0 ? el('text',{class:'tm-lbl', x:0, y:r+17, 'text-anchor':'middle'}, p.s)
-      : el('text',{class:'tm-lbl', x:p.side*(r+7), y:5, 'text-anchor':p.side>0?'start':'end'}, p.s));
+    p.lbl=p.side===0 ? el('text',{class:'tm-lbl', x:0, y:r+17, 'text-anchor':'middle'}, p.s)
+      : el('text',{class:'tm-lbl', x:p.side*(r+7), y:5, 'text-anchor':p.side>0?'start':'end'}, p.s);
+    g.appendChild(p.lbl);
     g.addEventListener('click',function(){ if(!dragMoved) pick(p.n); });
     g.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pick(p.n);} });
     pinsG.appendChild(g); p.g=g;
@@ -1528,7 +1534,7 @@
     const cb=h('button','copy'); cb.type='button'; cb.setAttribute('data-copy',text); cb.setAttribute('aria-label','複製泰文地址'); cb.innerHTML=COPY_SVG;
     box.appendChild(cb); return box;
   }
-  function clearCafe(){ CAFES.forEach(function(c){ c.g.classList.remove('tm-sel'); }); }
+  function clearCafe(){ CAFES.concat(SHOPS).forEach(function(c){ c.g.classList.remove('tm-sel'); }); }
   function showCafe(c){
     setDay(null); sel=null; sync();
     c.g.classList.add('tm-sel');
@@ -1542,6 +1548,47 @@
     kv.row('地址', c.addr);
     kv.row('營業時間', c.hours+'（11/24 週二查的，只看到當天）');
     kv.row('附近的行程地點', others.map(function(x){ return x.p.n+' '+x.p.s; }).join('、'));
+    result.appendChild(kv);
+    result.appendChild(mapLink(c.link,'在 Google 地圖打開'));
+  }
+  // fragrance shops (from an Instagram round-up Brooklyn shared, plus Karmakamet): bottle icon only, details on click, never part of a day line
+  const SHOPS=[
+    {name:'onest at Song Wat', rate:'5.0（3,808 則）', addr:'1198 Song Wat Rd, Chakkrawat, Samphanthawong', hours:'11:00 開門', about:'把日常居家用品變成香氣體驗，植物系香氣。', lat:13.7380112, lon:100.5066849, link:'https://www.google.com/maps/search/?api=1&query=onest+at+Song+Wat+Bangkok'},
+    {name:'COPENN Songwat', rate:'4.8（127 則）', addr:'1452 Song Wat Rd, Chakkrawat, Samphanthawong', hours:'11:00 開門', about:'木質、煙燻與大地調。', other:'Sukhumvit 24 旗艦店（Superbon 拳館同一條巷）', lat:13.7383772, lon:100.5068311, link:'https://www.google.com/maps/search/?api=1&query=Copenn+Songwat'},
+    {name:'FRAYN', rate:'4.9（94 則）', addr:'1290 Song Wat Rd, Samphanthawong', hours:'11:00 開門', about:'清透、柔和的香氣，從香水到居家香氛。', lat:13.7379436, lon:100.5077456, link:'https://www.google.com/maps/search/?api=1&query=FRAYN+Song+Wat+Bangkok'},
+    {name:'Antidotes Song Wat', rate:'5.0（442 則）', addr:'1362 Song Wat Rd, Samphanthawong', hours:'11:00 開門', about:'清新、乾淨又有層次的香氣。', other:'中央世界 2 樓 K232、ICONSIAM 2 樓 K201', lat:13.73752, lon:100.508402, link:'https://www.google.com/maps/search/?api=1&query=Antidotes+Song+Wat'},
+    {name:'JOURNAL - SongWat', rate:'4.2（5 則）', addr:'880（2 樓）Chakkrawat, Samphanthawong', hours:'10:00–20:00', about:'把泰國的文化與生活記憶做成香氣。', other:'中央世界 2 樓 K231', lat:13.7391645, lon:100.5054472, link:'https://www.google.com/maps/search/?api=1&query=JOURNAL+perfume+Song+Wat+Yaowarat+Bangkok'},
+    {name:'LAMRIM', rate:'4.9（14 則）', addr:'535, 32 Phetchaburi Rd, Ratchathewi', hours:'10:00 開門', about:'把茶的氣息化成香氛，自然、安靜。', lat:13.7512896, lon:100.5265662, link:'https://www.google.com/maps/search/?api=1&query=LAMRIM+Bangkok'},
+    {name:'Karmakamet Central World', rate:'4.5（636 則）', addr:'中央世界 1 樓 G111–G112, Rama I Rd, Pathum Wan', hours:'22:00 打烊', other:'Erawan Bangkok（中央世界旁）', lat:13.745311, lon:100.5387774, link:'https://www.google.com/maps/search/?api=1&query=Karmakamet+Central+World'}
+  ];
+  const shopsG=byId('shops');
+  SHOPS.forEach(function(c){
+    c.x=wx(c.lon); c.y=wy(c.lat);
+    const g=el('g',{class:'tm-cafe tm-shop', tabindex:'0', role:'button', 'aria-label':'香氛店：'+c.name});
+    g.appendChild(el('circle',{class:'tm-ring', r:16}));
+    g.appendChild(el('circle',{class:'tm-cbg', r:12}));
+    g.appendChild(el('rect',{class:'tm-sc', x:-2.6, y:-8.6, width:5.2, height:3, rx:0.8}));
+    g.appendChild(el('rect',{class:'tm-sc', x:-1.4, y:-5.8, width:2.8, height:2.2}));
+    g.appendChild(el('rect',{class:'tm-sb', x:-5.6, y:-3.8, width:11.2, height:10.6, rx:2.4}));
+    g.appendChild(el('rect',{class:'tm-sl', x:-3, y:0.2, width:6, height:3.2, rx:0.6}));
+    g.addEventListener('click',function(){ if(!dragMoved) showShop(c); });
+    g.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showShop(c); } });
+    shopsG.appendChild(g); c.g=g;
+  });
+  function showShop(c){
+    setDay(null); sel=null; sync();
+    c.g.classList.add('tm-sel');
+    const near=P.filter(function(p){ return p.n!==1; }).map(function(p){ return {p:p, d:hav(c,p)}; }).sort(function(a,b){ return a.d-b.d; }).slice(0,2);
+    result.textContent='';
+    result.appendChild(h('strong',null,c.name));
+    const kv=kvBox();
+    kv.row('類型', '香氛店');
+    kv.row('特色', c.about);
+    kv.row('Google 評分', c.rate);
+    kv.row('地址', c.addr);
+    kv.row('營業時間', c.hours+'（11/24 週二晚上查的，只看到部分）');
+    kv.row('附近的行程地點', near.map(function(x){ return x.p.n+' '+x.p.s; }).join('、'));
+    kv.row('其他分店', c.other);
     result.appendChild(kv);
     result.appendChild(mapLink(c.link,'在 Google 地圖打開'));
   }
@@ -1572,6 +1619,14 @@
   }
   function zoomAt(sx,sy,f){ const k2=clampK(k*f); tx=sx-(sx-tx)*(k2/k); ty=sy-(sy-ty)*(k2/k); k=k2; draw(); }
   function draw(){ if(raf) return; raf=requestAnimationFrame(function(){ raf=0; apply(); }); }
+  // 圖示排位置：先照定稿的做法把它從圓圈、地名、別的圖示旁邊推開（兩輪）；
+  // 推完如果還壓著東西（擠的地方常發生），改從原本的位置往外一圈一圈找最近的空位。
+  function isClear(x,y,placed){ for(let i=0;i<placed.length;i++){ const q=placed[i]; if(Math.hypot(x-q.x,y-q.y)<q.r-0.5) return false; } return true; }
+  function freeSpot(x0,y0,placed){
+    for(let r=4;r<=140;r+=4){ const n=Math.max(12,Math.round(r*0.6));
+      for(let i=0;i<n;i++){ const a=i*2*Math.PI/n, x=x0+r*Math.cos(a), y=y0+r*Math.sin(a); if(isClear(x,y,placed)) return [x,y]; } }
+    return null;
+  }
   function apply(){
     clampPan();
     world.setAttribute('transform','translate('+tx.toFixed(2)+' '+ty.toFixed(2)+') scale('+k.toFixed(5)+')');
@@ -1583,9 +1638,18 @@
     const noLbl = W<560 && k<kFit*1.8;
     P.forEach(function(p){p.g.setAttribute('transform','translate('+p.sx.toFixed(1)+' '+p.sy.toFixed(1)+')'); p.g.classList.toggle('tm-nolbl', noLbl);});
     const placed=P.map(function(p){ return {x:p.sx,y:p.sy,r:26}; });
-    CAFES.forEach(function(c){
-      let x=c.x*k+tx, y=c.y*k+ty;
+    // 顯示中的地名也算障礙：☕ 和香水瓶被推開時不要躲到字後面（字蓋住就點不到）
+    P.forEach(function(p){
+      if(p.side===0 || (noLbl && !p.g.classList.contains('tm-sel'))) return;
+      if(!p.lw){ try{ p.lw=p.lbl.getComputedTextLength(); }catch(e){ p.lw=0; } }
+      if(!p.lw) return;
+      const x0=(p.c==='home'?14:11.5)+7;
+      for(let d=10; ; d+=20){ const dd=Math.min(d, Math.max(p.lw-10,10)); placed.push({x:p.sx+p.side*(x0+dd), y:p.sy, r:22}); if(dd<d || d>=p.lw-10) break; }
+    });
+    CAFES.concat(SHOPS).forEach(function(c){
+      const x0=c.x*k+tx, y0=c.y*k+ty; let x=x0, y=y0;
       for(let pass=0;pass<2;pass++) placed.forEach(function(q){ const dx=x-q.x, dy=y-q.y, d=Math.hypot(dx,dy); if(d<q.r){ const ux=d>0.01?dx/d:0.7, uy=d>0.01?dy/d:0.7; x=q.x+ux*q.r; y=q.y+uy*q.r; } });
+      if(!isClear(x,y,placed)){ const f=freeSpot(x0,y0,placed); if(f){ x=f[0]; y=f[1]; } }
       placed.push({x:x,y:y,r:25}); c.g.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')');
     });
     const showArea=k<kFit*5;
@@ -1650,6 +1714,7 @@
     if(sel!=null) showPlaceInfo(byN(sel));
     else showOverview();
     drawDays();
+    draw();   // 選取會讓地名出現或消失，圖示要重新排位置
   }
 
   // ---- schedule (locked): day lines, place focus ----
@@ -1777,7 +1842,7 @@
       ul.appendChild(li);
     });
     result.appendChild(ul);
-    result.appendChild(h('small',null,'每天的線只是把當天要去的圓圈連起來，方便看位置，不沿著道路。先後順序以上面的行程表為主。貼紙上的 TOFU 是順便去，不連線。點日期只看那一天，再點一次回到全部。點圓圈看地點資料，☕ 是咖啡廳。'));
+    result.appendChild(h('small',null,'每天的線只是把當天要去的圓圈連起來，方便看位置，不沿著道路。先後順序以上面的行程表為主。貼紙上的 TOFU 是順便去，不連線。點日期只看那一天，再點一次回到全部。點圓圈看地點資料，☕ 是咖啡廳，香水瓶是香氛店。'));
   }
   function showDay(d, zoom){
     clearCafe();
@@ -1793,7 +1858,7 @@
     if(bigText) result.appendChild(h('span','tm-big',bigText));
     if(seq.length>1) result.appendChild(h('span','tm-onl','線上的地點：'+seq.map(function(n){ return n+' '+byN(n).s; }).join('、')));
     result.appendChild(h('small',null,'線只是把當天的圓圈連起來，方便看位置，不是實際路線。先後順序以上面的行程表為主。'+(dayHasOpenGym(d)?'這天的拳館還沒選，所以沒有連到拳館。':'')));
-    if(zoom && dstr) fitPath(dstr, Math.min(W,H)<420?60:96);
+    if(zoom && dstr) fitPath(dstr, Math.min(W,H)<420?60:96); else draw();
   }
   function focusPlace(n){
     setDay(null); sel=n; sync();
